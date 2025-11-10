@@ -7,13 +7,18 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { selectOrders, Order } from '../store/orderSlice';
+
+type RootStackParamList = {
+  OrderDetail: { orderId: string };
+}
+
 
 const filters = ['All', 'Pending', 'Delivered', 'Unpaid'] as const;
 
 export default function Home() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const orders = useSelector(selectOrders);
   const [filter, setFilter] = useState<(typeof filters)[number]>('All');
 
