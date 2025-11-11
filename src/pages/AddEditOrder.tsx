@@ -8,8 +8,8 @@ import {
   FlatList,
   Alert,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import {
   addOrder,
   updateOrder,
@@ -17,7 +17,10 @@ import {
   OrderItem,
   selectOrders,
 } from '../store/orderSlice';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { parseWhatsappOrder } from './parseWhatsappOrder';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function AddEditOrder() {
   const dispatch = useDispatch();
@@ -63,6 +66,19 @@ export default function AddEditOrder() {
     return Math.max(0, subtotal + tax - disc);
   }
 
+  async function onPasteWhatsapp() {
+    const text = await Clipboard.getString();
+    if (!text) return Alert.alert('Clipboard is empty');
+    const parsed = parseWhatsappOrder(text);
+    setCustomerName(parsed.customerName);
+    setPhone(parsed.phone);
+    setAddress(parsed.address);
+    setNotes(parsed.notes);
+    setTaxes(String(parsed.taxes));
+    setDiscount(String(parsed.discount));
+    setItems(parsed.items);
+  }
+
   function onSave() {
     if (!customerName.trim()) return Alert.alert('Please enter customer name');
     const payload: Omit<Order, 'id' | 'createdAt'> = {
@@ -92,91 +108,98 @@ export default function AddEditOrder() {
   }
 
   return (
-    <ScrollView style={{ flex: 1, padding: 12 }}>
-      <Text style={styles.label}>Customer name</Text>
-      <TextInput
-        style={styles.input}
-        value={customerName}
-        onChangeText={setCustomerName}
-      />
+    <View style={{ flex: 1 }}>
+      <ScrollView style={{ flex: 1, padding: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+          <Text style={styles.label}>Customer name</Text>
+          <TouchableOpacity onPress={onPasteWhatsapp} style={{ marginLeft: 'auto', backgroundColor: '#e0e0e0', padding: 6, borderRadius: 6 }}>
+            <Text>Paste from WhatsApp</Text>
+          </TouchableOpacity>
+        </View>
+        <TextInput
+          style={styles.input}
+          value={customerName}
+          onChangeText={setCustomerName}
+        />
 
-      <Text style={styles.label}>Phone</Text>
-      <TextInput
-        style={styles.input}
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-pad"
-      />
+        <Text style={styles.label}>Phone</Text>
+        <TextInput
+          style={styles.input}
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
+        />
 
-      <Text style={styles.label}>Address</Text>
-      <TextInput
-        style={styles.input}
-        value={address}
-        onChangeText={setAddress}
-      />
+        <Text style={styles.label}>Address</Text>
+        <TextInput
+          style={styles.input}
+          value={address}
+          onChangeText={setAddress}
+        />
 
-      <Text style={styles.label}>Items</Text>
-      <FlatList
-        data={items}
-        keyExtractor={it => it.id}
-        renderItem={({ item, index }) => (
-          <View style={styles.itemRow}>
-            <TextInput
-              placeholder="Name"
-              style={styles.itemInput}
-              value={item.name}
-              onChangeText={v => updateItem(index, 'name', v)}
-            />
-            <TextInput
-              placeholder="Qty"
-              style={styles.smallInput}
-              value={String(item.quantity)}
-              keyboardType="numeric"
-              onChangeText={v => updateItem(index, 'quantity', Number(v) || 0)}
-            />
-            <TextInput
-              placeholder="Rate"
-              style={styles.smallInput}
-              value={String(item.rate)}
-              keyboardType="numeric"
-              onChangeText={v => updateItem(index, 'rate', Number(v) || 0)}
-            />
-            <Text style={{ width: 64, textAlign: 'right' }}>
-              ₹{(item.total || 0).toFixed(2)}
-            </Text>
-          </View>
-        )}
-        ListEmptyComponent={() => <Text>No items</Text>}
-      />
-      <Button title="Add item" onPress={addItem} />
+        <Text style={styles.label}>Items</Text>
+        <FlatList
+          data={items}
+          keyExtractor={it => it.id}
+          renderItem={({ item, index }) => (
+            <View style={styles.itemRow}>
+              <TextInput
+                placeholder="Name"
+                style={styles.itemInput}
+                value={item.name}
+                onChangeText={v => updateItem(index, 'name', v)}
+              />
+              <TextInput
+                placeholder="Qty"
+                style={styles.smallInput}
+                value={String(item.quantity)}
+                keyboardType="numeric"
+                onChangeText={v => updateItem(index, 'quantity', Number(v) || 0)}
+              />
+              <TextInput
+                placeholder="Rate"
+                style={styles.smallInput}
+                value={String(item.rate)}
+                keyboardType="numeric"
+                onChangeText={v => updateItem(index, 'rate', Number(v) || 0)}
+              />
+              <Text style={{ width: 64, textAlign: 'right' }}>
+                ₹{(item.total || 0).toFixed(2)}
+              </Text>
+            </View>
+          )}
+          ListEmptyComponent={() => <Text>No items</Text>}
+        />
+        <Button title="Add item" onPress={addItem} />
 
-      <Text style={styles.label}>Taxes</Text>
-      <TextInput
-        style={styles.input}
-        value={taxes}
-        onChangeText={setTaxes}
-        keyboardType="numeric"
-      />
+        <Text style={styles.label}>Taxes</Text>
+        <TextInput
+          style={styles.input}
+          value={taxes}
+          onChangeText={setTaxes}
+          keyboardType="numeric"
+        />
 
-      <Text style={styles.label}>Discount</Text>
-      <TextInput
-        style={styles.input}
-        value={discount}
-        onChangeText={setDiscount}
-        keyboardType="numeric"
-      />
+        <Text style={styles.label}>Discount</Text>
+        <TextInput
+          style={styles.input}
+          value={discount}
+          onChangeText={setDiscount}
+          keyboardType="numeric"
+        />
 
-      <Text style={styles.label}>Notes</Text>
-      <TextInput style={styles.input} value={notes} onChangeText={setNotes} />
+        <Text style={styles.label}>Notes</Text>
+        <TextInput style={styles.input} value={notes} onChangeText={setNotes} />
 
-      <View style={{ marginVertical: 12 }}>
-        <Text style={{ fontWeight: '700' }}>
-          Total: ₹{computeTotal().toFixed(2)}
-        </Text>
-      </View>
+        <View style={{ marginVertical: 12 }}>
+          <Text style={{ fontWeight: '700' }}>
+            Total: ₹{computeTotal().toFixed(2)}
+          </Text>
+        </View>
 
-      <Button title="Save" onPress={onSave} />
-    </ScrollView>
+        <Button title="Save" onPress={onSave} />
+      </ScrollView>
+    </View>
   );
 }
 

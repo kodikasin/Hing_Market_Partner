@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   Share,
   ScrollView,
+  Platform,
 } from 'react-native';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { selectOrders, toggleStatus, Order } from '../store/orderSlice';
@@ -23,18 +25,18 @@ export default function OrderDetail() {
   const orders = useSelector(selectOrders);
   const dispatch = useDispatch();
 
-  const order = orders.find((o: Order) => o.id === orderId) as
-    | Order
-    | undefined;
-  if (!order)
+
+  const order = orders.find((o: Order) => o.id === orderId);
+  if (!order) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Text>Order not found</Text>
       </View>
     );
+  }
 
   async function onShareInvoice() {
-    // Simple textual invoice; for real PDF generation use a library (react-native-pdf, react-native-html-to-pdf, etc.)
+    // Simple textual invoice
     const lines = [] as string[];
     lines.push(`Invoice for ${order.customerName}`);
     lines.push(`Phone: ${order.phone || ''}`);
@@ -46,11 +48,39 @@ export default function OrderDetail() {
     lines.push(`Taxes: ${order.taxes}`);
     lines.push(`Discount: ${order.discount}`);
     lines.push(`Total: ${order.totalAmount}`);
-
     try {
       await Share.share({ message: lines.join('\n') });
     } catch (e) {
       console.warn(e);
+    }
+  }
+
+  async function onSharePDF() {
+    // Generate HTML for invoice
+    const html = `
+      <h2>Invoice</h2>
+      <p><b>Customer:</b> ${order.customerName}<br/>
+      <b>Phone:</b> ${order.phone || ''}<br/>
+      <b>Address:</b> ${order.address || ''}</p>
+      <table border="1" cellspacing="0" cellpadding="4" style="width:100%;border-collapse:collapse;">
+        <tr><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr>
+        ${order.items.map(it => `<tr><td>${it.name}</td><td>${it.quantity}</td><td>${it.rate}</td><td>${it.total}</td></tr>`).join('')}
+      </table>
+      <p>Taxes: ₹${order.taxes}<br/>Discount: ₹${order.discount}<br/><b>Total: ₹${order.totalAmount}</b></p>
+      <p>Notes: ${order.notes || ''}</p>
+    `;
+    try {
+      const file = await RNHTMLtoPDF.convert({
+        html,
+        fileName: `Invoice_${order.customerName}_${order.id}`,
+        base64: false,
+      });
+      await Share.share({
+        url: Platform.OS === 'android' ? `file://${file.filePath}` : file.filePath,
+        message: `Invoice for ${order.customerName}`,
+      });
+    } catch (e) {
+      console.warn('PDF share error', e);
     }
   }
 
@@ -141,7 +171,9 @@ export default function OrderDetail() {
       </View>
 
       <View style={{ marginTop: 16 }}>
-        <Button title="Generate & Share Invoice" onPress={onShareInvoice} />
+        <Button title="Share Text Invoice" onPress={onShareInvoice} />
+        <View style={{ height: 8 }} />
+        <Button title="Generate & Share PDF" onPress={onSharePDF} />
       </View>
     </ScrollView>
   );
