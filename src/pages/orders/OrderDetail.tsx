@@ -6,14 +6,16 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Share,
   ScrollView,
   Platform,
 } from 'react-native';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import { generatePDF } from 'react-native-html-to-pdf';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { selectOrders, toggleStatus, Order } from '../../store/orderSlice';
+import Share from 'react-native-share';
+import RNFS from 'react-native-fs';
+
 
 type Props = {
   route: RouteProp<any, any>;
@@ -24,7 +26,6 @@ export default function OrderDetail() {
   const { orderId } = route.params || {};
   const orders = useSelector(selectOrders);
   const dispatch = useDispatch();
-
 
   const order = orders.find((o: Order) => o.id === orderId);
   if (!order) {
@@ -64,23 +65,46 @@ export default function OrderDetail() {
       <b>Address:</b> ${order.address || ''}</p>
       <table border="1" cellspacing="0" cellpadding="4" style="width:100%;border-collapse:collapse;">
         <tr><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr>
-        ${order.items.map(it => `<tr><td>${it.name}</td><td>${it.quantity}</td><td>${it.rate}</td><td>${it.total}</td></tr>`).join('')}
+        ${order.items
+          .map(
+            it =>
+              `<tr><td>${it.name}</td><td>${it.quantity}</td><td>${it.rate}</td><td>${it.total}</td></tr>`,
+          )
+          .join('')}
       </table>
-      <p>Taxes: ₹${order.taxes}<br/>Discount: ₹${order.discount}<br/><b>Total: ₹${order.totalAmount}</b></p>
+      <p>Taxes: ₹${order.taxes}<br/>Discount: ₹${
+      order.discount
+    }<br/><b>Total: ₹${order.totalAmount}</b></p>
       <p>Notes: ${order.notes || ''}</p>
     `;
     try {
-      const file = await RNHTMLtoPDF.convert({
+      const file = await generatePDF({
         html,
         fileName: `Invoice_${order.customerName}_${order.id}`,
         base64: false,
       });
-      await Share.share({
-        url: Platform.OS === 'android' ? `file://${file.filePath}` : file.filePath,
-        message: `Invoice for ${order.customerName}`,
-      });
-    } catch (e) {
-      console.warn('PDF share error', e);
+      const path = file.filePath; // e.g. /data/user/0/.../cache/Invoice_...pdf
+      console.log('pdf path:', path);
+
+      // sanity check: file exists
+      const exists = await RNFS.exists(path);
+      if (!exists) throw new Error('PDF file not found at: ' + path);
+
+      // react-native-share works with file:// URIs on Android and direct path on iOS
+      const url = Platform.OS === 'android' ? `file://${path}` : path;
+
+      const shareOptions = {
+        url,
+        type: 'application/pdf',
+        filename: `Invoice_${order.customerName}_${order.id}`, // optional
+        subject: `Invoice for ${order.customerName}`, // for email
+        message: `Invoice for ${order.customerName}`, // some apps use message
+      };
+
+      await Share.open(shareOptions);
+    } catch (err) {
+      console.warn('PDF share error', err);
+      // show user friendly message if needed
     }
   }
 
@@ -107,7 +131,7 @@ export default function OrderDetail() {
       />
 
       <View style={{ marginTop: 12 }}>
-        <Text>Taxes: ₹{order.taxes}</Text>
+        <Text>Taxes: {order.taxes} % </Text>
         <Text>Discount: ₹{order.discount}</Text>
         <Text style={{ fontWeight: '700' }}>Total: ₹{order.totalAmount}</Text>
       </View>

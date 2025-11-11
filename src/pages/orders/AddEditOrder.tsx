@@ -5,7 +5,6 @@ import {
   TextInput,
   Button,
   StyleSheet,
-  FlatList,
   Alert,
   ScrollView,
   TouchableOpacity,
@@ -21,6 +20,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { parseWhatsappOrder } from '../parseWhatsappOrder';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
+import Items from './Items';
 
 export default function AddEditOrder() {
   const dispatch = useDispatch();
@@ -43,27 +43,15 @@ export default function AddEditOrder() {
 
   useEffect(() => {}, []);
 
-  function addItem() {
-    setItems(prev => [
-      ...prev,
-      { id: String(Math.random()), name: '', quantity: 1, rate: 0, total: 0 },
-    ]);
-  }
+  
 
-  function updateItem(idx: number, key: keyof OrderItem, value: any) {
-    setItems(prev => {
-      const copy = [...prev];
-      (copy[idx] as any)[key] = value;
-      copy[idx].total = copy[idx].quantity * copy[idx].rate;
-      return copy;
-    });
-  }
-
-  function computeTotal() {
+  function computeTotals() {
     const subtotal = items.reduce((s, it) => s + (it.total || 0), 0);
-    const tax = parseFloat(taxes || '0');
+    const taxPercent = parseFloat(taxes || '0');
+    const taxAmount = subtotal * (taxPercent / 100);
     const disc = parseFloat(discount || '0');
-    return Math.max(0, subtotal + tax - disc);
+    const finalTotal = Math.max(0, subtotal + taxAmount - disc);
+    return { subtotal, taxAmount, finalTotal };
   }
 
   async function onPasteWhatsapp() {
@@ -85,10 +73,13 @@ export default function AddEditOrder() {
       customerName: customerName.trim(),
       phone,
       address,
-      items: items.map(i => ({ ...i, total: i.quantity * i.rate })),
+      // compute totals and remove any items with zero total
+      items: items
+        .map(i => ({ ...i, total: (Number(i.quantity) || 0) * (Number(i.rate) || 0) }))
+        .filter(i => (i.total || 0) > 0),
       taxes: parseFloat(taxes || '0'),
       discount: parseFloat(discount || '0'),
-      totalAmount: computeTotal(),
+  totalAmount: computeTotals().finalTotal,
       notes,
       status: editing?.status ?? {
         received: true,
@@ -107,12 +98,30 @@ export default function AddEditOrder() {
     navigation.goBack();
   }
 
+  // precompute totals for rendering
+  const { subtotal, taxAmount, finalTotal } = computeTotals();
+  const taxPercent = parseFloat(taxes || '0');
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={{ flex: 1, padding: 12 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: 8,
+          }}
+        >
           <Text style={styles.label}>Customer name</Text>
-          <TouchableOpacity onPress={onPasteWhatsapp} style={{ marginLeft: 'auto', backgroundColor: '#e0e0e0', padding: 6, borderRadius: 6 }}>
+          <TouchableOpacity
+            onPress={onPasteWhatsapp}
+            style={{
+              marginLeft: 'auto',
+              backgroundColor: '#e0e0e0',
+              padding: 6,
+              borderRadius: 6,
+            }}
+          >
             <Text>Paste from WhatsApp</Text>
           </TouchableOpacity>
         </View>
@@ -136,43 +145,9 @@ export default function AddEditOrder() {
           value={address}
           onChangeText={setAddress}
         />
+        <Items items={items} setItems={setItems} styles={styles} />
 
-        <Text style={styles.label}>Items</Text>
-        <FlatList
-          data={items}
-          keyExtractor={it => it.id}
-          renderItem={({ item, index }) => (
-            <View style={styles.itemRow}>
-              <TextInput
-                placeholder="Name"
-                style={styles.itemInput}
-                value={item.name}
-                onChangeText={v => updateItem(index, 'name', v)}
-              />
-              <TextInput
-                placeholder="Qty"
-                style={styles.smallInput}
-                value={String(item.quantity)}
-                keyboardType="numeric"
-                onChangeText={v => updateItem(index, 'quantity', Number(v) || 0)}
-              />
-              <TextInput
-                placeholder="Rate"
-                style={styles.smallInput}
-                value={String(item.rate)}
-                keyboardType="numeric"
-                onChangeText={v => updateItem(index, 'rate', Number(v) || 0)}
-              />
-              <Text style={{ width: 64, textAlign: 'right' }}>
-                ₹{(item.total || 0).toFixed(2)}
-              </Text>
-            </View>
-          )}
-          ListEmptyComponent={() => <Text>No items</Text>}
-        />
-        <Button title="Add item" onPress={addItem} />
-
-        <Text style={styles.label}>Taxes</Text>
+  <Text style={styles.label}>Tax (%)</Text>
         <TextInput
           style={styles.input}
           value={taxes}
@@ -192,9 +167,9 @@ export default function AddEditOrder() {
         <TextInput style={styles.input} value={notes} onChangeText={setNotes} />
 
         <View style={{ marginVertical: 12 }}>
-          <Text style={{ fontWeight: '700' }}>
-            Total: ₹{computeTotal().toFixed(2)}
-          </Text>
+          <Text>Items total: ₹{subtotal.toFixed(2)}</Text>
+          <Text>Tax ({taxPercent.toFixed(2)}%): ₹{taxAmount.toFixed(2)}</Text>
+          <Text style={{ fontWeight: '700' }}>Final total: ₹{finalTotal.toFixed(2)}</Text>
         </View>
 
         <Button title="Save" onPress={onSave} />
