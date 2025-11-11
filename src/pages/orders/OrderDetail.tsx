@@ -13,7 +13,7 @@ import {
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { selectOrders, toggleStatus, Order } from '../store/orderSlice';
+import { selectOrders, toggleStatus, Order } from '../../store/orderSlice';
 
 type Props = {
   route: RouteProp<any, any>;

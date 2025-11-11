@@ -16,9 +16,9 @@ import {
   Order,
   OrderItem,
   selectOrders,
-} from '../store/orderSlice';
+} from '../../store/orderSlice';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { parseWhatsappOrder } from './parseWhatsappOrder';
+import { parseWhatsappOrder } from '../parseWhatsappOrder';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
