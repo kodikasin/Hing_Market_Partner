@@ -11,8 +11,8 @@ import {
 } from 'react-native';
 import { generatePDF } from 'react-native-html-to-pdf';
 import { useSelector, useDispatch } from 'react-redux';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { selectOrders, toggleStatus, Order } from '../../store/orderSlice';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { selectOrders, toggleStatus, Order, removeOrder } from '../../store/orderSlice';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
 
@@ -26,6 +26,7 @@ export default function OrderDetail() {
   const { orderId } = route.params || {};
   const orders = useSelector(selectOrders);
   const dispatch = useDispatch();
+  const navigation: any = useNavigation();
 
   const order = orders.find((o: Order) => o.id === orderId);
   if (!order) {
@@ -106,6 +107,31 @@ export default function OrderDetail() {
       console.warn('PDF share error', err);
       // show user friendly message if needed
     }
+  }
+
+  function onEdit() {
+    // navigate to AddEditOrder with order id
+    navigation.navigate('AddEditOrder', { orderId: order.id });
+  }
+
+  function onDelete() {
+    // confirm then delete
+    const confirm = require('react-native').Alert;
+    confirm.alert(
+      'Delete order',
+      'Are you sure you want to delete this order? This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            dispatch(removeOrder(order.id));
+            navigation.goBack();
+          },
+        },
+      ],
+    );
   }
 
   function toggle(key: keyof Order['status']) {
@@ -198,6 +224,10 @@ export default function OrderDetail() {
         <Button title="Share Text Invoice" onPress={onShareInvoice} />
         <View style={{ height: 8 }} />
         <Button title="Generate & Share PDF" onPress={onSharePDF} />
+        <View style={{ height: 8 }} />
+        <Button title="Edit Order" onPress={onEdit} />
+        <View style={{ height: 8 }} />
+        <Button title="Delete Order" color="#c62828" onPress={onDelete} />
       </View>
     </ScrollView>
   );
