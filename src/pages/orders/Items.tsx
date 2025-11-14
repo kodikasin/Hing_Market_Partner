@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { OrderItem } from '../../store/orderSlice';
 
 type ItemsProps = {
@@ -62,7 +62,9 @@ const Items: React.FC<ItemsProps> = ({ items, setItems, styles }) => {
         )}
         ListEmptyComponent={EmptyList}
       />
-      <Button title="Add item" onPress={addItem} />
+      <TouchableOpacity onPress={addItem} style={styles.addItemBtn} activeOpacity={0.9}>
+        <Text style={styles.addItemBtnText}>ADD ITEM</Text>
+      </TouchableOpacity>
     </>
   );
 };

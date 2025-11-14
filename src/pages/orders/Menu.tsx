@@ -1,7 +1,8 @@
 import {
   View,
   TouchableWithoutFeedback,
-  Button,
+  TouchableOpacity,
+  Text,
   StyleSheet,
   Platform,
   Animated,
@@ -142,12 +143,22 @@ const Menu = ({ order, navigation }: IMenu) => {
 
       {isMenuOpen && (
         <Animated.View style={[styles.menu, { height: heightStyle }]}>
-          <View style={styles.spacer} />
-          <Button title="Share PDF" onPress={onSharePDF} />
-          <View style={styles.spacer} />
-          <Button title="Edit" onPress={onEdit} />
-          <View style={styles.spacer} />
-          <Button title="Delete" color="#c62828" onPress={onDelete} />
+          <View style={styles.menuInner}>
+            <TouchableOpacity style={styles.menuItem} onPress={onSharePDF}>
+              <MaterialDesignIcons name="share" size={18} color="#5b4037" />
+              <Text style={styles.menuText}>  Share PDF</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem} onPress={onEdit}>
+              <MaterialDesignIcons name="pencil" size={18} color="#5b4037" />
+              <Text style={styles.menuText}>  Edit</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.menuItem]} onPress={onDelete}>
+              <MaterialDesignIcons name="trash-can" size={18} color="#c62828" />
+              <Text style={styles.menuTextDelete}>  Delete</Text>
+            </TouchableOpacity>
+          </View>
         </Animated.View>
       )}
     </View>
@@ -177,4 +188,8 @@ const styles = StyleSheet.create({
   spacer: {
     height: 8,
   },
+  menuInner: { paddingVertical: 6 },
+  menuItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 10 },
+  menuText: { color: '#5b4037', fontWeight: '600' },
+  menuTextDelete: { color: '#c62828', fontWeight: '600' },
 });

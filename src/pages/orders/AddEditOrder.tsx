@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   StyleSheet,
   Alert,
   ScrollView,
@@ -103,32 +102,20 @@ export default function AddEditOrder() {
   const taxPercent = parseFloat(taxes || '0');
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView style={{ flex: 1, padding: 12 }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 8,
-          }}
-        >
+    <View style={styles.container}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+        <View style={styles.rowBetween}>
           <Text style={styles.label}>Customer name</Text>
-          <TouchableOpacity
-            onPress={onPasteWhatsapp}
-            style={{
-              marginLeft: 'auto',
-              backgroundColor: '#e0e0e0',
-              padding: 6,
-              borderRadius: 6,
-            }}
-          >
-            <Text>Paste from WhatsApp</Text>
+          <TouchableOpacity onPress={onPasteWhatsapp} style={styles.pasteBtn}>
+            <Text style={styles.pasteBtnText}>Paste from WhatsApp</Text>
           </TouchableOpacity>
         </View>
+
         <TextInput
           style={styles.input}
           value={customerName}
           onChangeText={setCustomerName}
+          placeholder="Name"
         />
 
         <Text style={styles.label}>Phone</Text>
@@ -137,6 +124,7 @@ export default function AddEditOrder() {
           value={phone}
           onChangeText={setPhone}
           keyboardType="phone-pad"
+          placeholder="Mobile number"
         />
 
         <Text style={styles.label}>Address</Text>
@@ -144,10 +132,12 @@ export default function AddEditOrder() {
           style={styles.input}
           value={address}
           onChangeText={setAddress}
+          placeholder="Address"
         />
+
         <Items items={items} setItems={setItems} styles={styles} />
 
-  <Text style={styles.label}>Tax (%)</Text>
+        <Text style={styles.label}>Tax (%)</Text>
         <TextInput
           style={styles.input}
           value={taxes}
@@ -164,44 +154,83 @@ export default function AddEditOrder() {
         />
 
         <Text style={styles.label}>Notes</Text>
-        <TextInput style={styles.input} value={notes} onChangeText={setNotes} />
+        <TextInput
+          style={[styles.input, styles.multiline]}
+          value={notes}
+          onChangeText={setNotes}
+          multiline
+          numberOfLines={4}
+          placeholder='Notes'
+        />
 
-        <View style={{ marginVertical: 12 }}>
-          <Text>Items total: ₹{subtotal.toFixed(2)}</Text>
-          <Text>Tax ({taxPercent.toFixed(2)}%): ₹{taxAmount.toFixed(2)}</Text>
-          <Text style={{ fontWeight: '700' }}>Final total: ₹{finalTotal.toFixed(2)}</Text>
+        <View style={styles.totalsCard}>
+          <View style={styles.totalsRow}>
+            <Text style={styles.totalsLabel}>Items total:</Text>
+            <Text style={styles.totalsValue}>₹{subtotal.toFixed(2)}</Text>
+          </View>
+          <View style={styles.totalsRow}>
+            <Text style={styles.totalsLabel}>Tax ({taxPercent.toFixed(2)}%):</Text>
+            <Text style={styles.totalsValue}>₹{taxAmount.toFixed(2)}</Text>
+          </View>
+          <View style={[styles.totalsRow, styles.totalsDivider]}>
+            <Text style={[styles.totalsLabel, styles.finalLabel]}>Final total:</Text>
+            <Text style={[styles.totalsValue, styles.finalLabel]}>₹{finalTotal.toFixed(2)}</Text>
+          </View>
         </View>
 
-        <Button title="Save" onPress={onSave} />
+        <TouchableOpacity style={styles.saveBtn} onPress={onSave} activeOpacity={0.9}>
+          <Text style={styles.saveBtnText}>SAVE</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  label: { marginTop: 8, fontWeight: '600' },
+  container: { flex: 1, backgroundColor: '#f4efe9' },
+  scroll: { flex: 1 },
+  content: { padding: 16, paddingBottom: 80 },
+  rowBetween: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  label: { marginTop: 8, fontWeight: '600', color: '#3a241f' },
+  pasteBtn: { marginLeft: 'auto', backgroundColor: '#fff', paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, borderWidth: 1, borderColor: '#eee' },
+  pasteBtnText: { color: '#5b4037', fontWeight: '700' },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 8,
-    borderRadius: 6,
+    backgroundColor: '#f2f0ee',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     marginTop: 6,
+    borderWidth: 1,
+    borderColor: '#eee',
   },
+  multiline: { minHeight: 100, textAlignVertical: 'top' },
   itemRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
   itemInput: {
     flex: 1,
+    backgroundColor: '#f7f5f4',
     borderWidth: 1,
     borderColor: '#eee',
-    padding: 6,
-    borderRadius: 6,
+    padding: 8,
+    borderRadius: 8,
     marginRight: 8,
   },
   smallInput: {
     width: 64,
+    backgroundColor: '#f7f5f4',
     borderWidth: 1,
     borderColor: '#eee',
-    padding: 6,
-    borderRadius: 6,
+    padding: 8,
+    borderRadius: 8,
     marginRight: 8,
   },
+  addItemBtn: { backgroundColor: '#6e4337', paddingVertical: 12, borderRadius: 8, marginTop: 8, alignItems: 'center' },
+  addItemBtnText: { color: '#fff', fontWeight: '700' },
+  totalsCard: { backgroundColor: '#fff6f4', padding: 12, borderRadius: 10, marginVertical: 12, borderWidth: 1, borderColor: '#eee' },
+  totalsRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
+  totalsLabel: { color: '#5b4037' },
+  totalsValue: { color: '#3a241f', fontWeight: '700' },
+  totalsDivider: { borderTopWidth: 1, borderTopColor: '#eee', marginTop: 6, paddingTop: 8 },
+  finalLabel: { fontSize: 16 },
+  saveBtn: { backgroundColor: '#6e4337', paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginTop: 8 },
+  saveBtnText: { color: '#fff', fontWeight: '700' },
 });
