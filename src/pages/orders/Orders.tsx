@@ -21,6 +21,10 @@ export default function Orders() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Orders</Text>
+      </View>
+
       <View style={styles.filtersRow}>
         {filters.map(f => (
           <TouchableOpacity
@@ -48,27 +52,33 @@ export default function Orders() {
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 12 },
+  container: { flex: 1, padding: 12, backgroundColor: '#f4efe9' },
+  header: { paddingTop: 8, paddingBottom: 6 },
+  headerTitle: { fontSize: 22, fontWeight: '700', color: '#3a241f' },
   fab: {
     position: 'absolute',
     right: 16,
     bottom: 24,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#6e4337',
     width: 56,
     height: 56,
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    elevation: 4,
   },
-  filtersRow: { flexDirection: 'row', marginBottom: 8 },
+  filtersRow: { flexDirection: 'row', marginBottom: 12 },
   filterBtn: {
-    padding: 8,
-    marginRight: 8,
-    borderRadius: 6,
-    backgroundColor: '#f2f2f2',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginRight: 10,
+    borderRadius: 12,
+    backgroundColor: '#ffffff',
   },
-  filterActive: { backgroundColor: '#007AFF' },
-  filterText: { color: '#000' },
-  floatingBtnText:{ color: 'white', fontSize: 24 }
-  
+  filterActive: { backgroundColor: '#6e4337' },
+  filterText: { color: '#7a6258', fontWeight: '600' },
+  filterTextActive: { color: '#fff' },
+  floatingBtnText: { color: 'white', fontSize: 28 },
 });
