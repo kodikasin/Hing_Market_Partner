@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import type { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 
@@ -13,4 +14,7 @@ export const screenOptions = ({ route }: { route: any }): BottomTabNavigationOpt
     }
     return null;
   },
+  tabBarActiveTintColor: '#6e4337',
+  tabBarInactiveTintColor: '#666',
+  tabBarLabelStyle: { fontSize: 12},
 });
