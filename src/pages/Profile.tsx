@@ -10,7 +10,7 @@ import {
   Linking,
   Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+// navigation not required in this screen currently
 
 const ListRow: React.FC<{
   title: string;
@@ -29,7 +29,6 @@ const ListRow: React.FC<{
 };
 
 export default function Profile() {
-  const navigation = useNavigation<any>();
   const [termsVisible, setTermsVisible] = useState(false);
   const [aboutVisible, setAboutVisible] = useState(false);
 
@@ -68,12 +67,16 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.name}>Partner Name</Text>
-        <Text style={styles.sub}>partner@example.com</Text>
+      <View style={styles.pageHeader}>
+        <Text style={styles.pageTitle}>Profile</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.userCard}>
+          <Text style={styles.userSmall}>Partner Name</Text>
+          <Text style={styles.userEmail}>partner@example.com</Text>
+        </View>
+
         <ListRow
           title="Terms & Conditions"
           subtitle="View app terms"
@@ -98,7 +101,9 @@ export default function Profile() {
           onPress={handleRate}
         />
 
-        {/* <ListRow title="Logout" subtitle="Sign out of your account" onPress={handleLogout} /> */}
+        {/* <TouchableOpacity style={styles.logoutBtn} onPress={() => Alert.alert('Logout', 'Logged out (placeholder)')}>
+          <Text style={styles.logoutText}>⟲  Logout</Text>
+        </TouchableOpacity> */}
       </ScrollView>
 
       <Modal
@@ -153,24 +158,28 @@ export default function Profile() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: { padding: 20, borderBottomWidth: 1, borderColor: '#eee' },
-  name: { fontSize: 20, fontWeight: '600' },
-  sub: { color: '#666', marginTop: 4 },
-  content: { paddingVertical: 10 },
+  container: { flex: 1, backgroundColor: '#f4efe9' },
+  pageHeader: { paddingTop: 10, paddingBottom: 6, paddingHorizontal: 16 },
+  pageTitle: { fontSize: 22, fontWeight: '700', color: '#3a241f' },
+  content: { padding: 16, paddingBottom: 40 },
+  userCard: { backgroundColor: '#f5eee9', borderRadius: 12, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: '#efe6e2' },
+  userSmall: { color: '#7a6258', marginBottom: 8 },
+  userEmail: { fontSize: 16, fontWeight: '700', color: '#3a241f' },
   row: {
-    paddingHorizontal: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingHorizontal: 18,
     paddingVertical: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: '#f1f1f1',
-    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#f0e7e3',
+    marginBottom: 12,
   },
-  rowTitle: { fontSize: 16 },
-  rowSubtitle: { color: '#888', marginTop: 4, fontSize: 12 },
-  chev: { color: '#bbb', fontSize: 18 },
+  rowTitle: { fontSize: 16, color: '#3a241f' },
+  rowSubtitle: { color: '#7a6258', marginTop: 4, fontSize: 12 },
+  chev: { color: '#b7a79f', fontSize: 18 },
   modalContainer: { flex: 1, backgroundColor: '#fff' },
   modalHeader: {
     padding: 16,
@@ -184,4 +193,6 @@ const styles = StyleSheet.create({
   closeBtn: { color: '#007AFF' },
   modalBody: { padding: 16 },
   paragraph: { marginBottom: 12, lineHeight: 20, color: '#333' },
+  logoutBtn: { backgroundColor: '#6e4337', paddingVertical: 12, borderRadius: 10, alignItems: 'center', marginTop: 12 },
+  logoutText: { color: '#fff', fontWeight: '700' },
 });
