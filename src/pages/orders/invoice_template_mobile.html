@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Receipt - Mobile</title>
+  <style>
+    /* Receipt-style mobile layout inspired by retail bills */
+    :root{--max-w:320px;--muted:#666;--border:#d0d0d0}
+    body{font-family: 'Courier New', Courier, monospace; margin:0; padding:6px; background:#fff; color:#111}
+    .receipt{max-width:var(--max-w);margin:0 auto;padding:6px}
+    .center{text-align:center}
+    .brand{font-size:18px;font-weight:700}
+    .small{font-size:11px;color:var(--muted);line-height:1.2}
+    .header-block{margin-bottom:6px}
+    .h-sep{border-bottom:1px dashed var(--border);margin:6px 0}
+    .sub-sep{border-bottom:1px dashed var(--border);opacity:0.6;margin:6px 0}
+    .meta{font-size:11px}
+    .items{margin-top:6px}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    thead th{font-weight:700;padding:6px 2px}
+    tbody td{padding:8px 2px;border-bottom:1px dashed var(--border)}
+    .desc{white-space:normal}
+    .rate,.qty{width:60px;text-align:center}
+    .amount{width:70px;text-align:right}
+    .totals{margin-top:6px}
+    .totals .row{display:flex;justify-content:space-between;padding:6px 2px;border-top:1px dashed var(--border)}
+    .big{font-weight:700}
+    .notes{font-size:11px;color:var(--muted);margin-top:6px}
+    .footer{font-size:11px;color:var(--muted);text-align:center;margin-top:8px}
+    @media print{ .receipt{max-width:100%;}}    
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <div class="center">
+      <img src="{{logo}}" class="logo" alt="logo"/>
+      <div class="brand">{{companyName}}</div>
+      <div class="small">{{companyAddress}}</div>
+      <div class="small">Phone No: {{companyPhone}}</div>
+      <div class="small">FSSAI No.: {{fssai}}</div>
+      <div class="title">RETAIL INVOICE</div>
+    </div>
+
+    <div class="hline"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+      <div>BILL NO: <strong>{{challanNo}}</strong></div>
+      <div>BILL DATE: {{challanDate}}&nbsp;&nbsp;TIME: {{time}}</div>
+    </div>
+
+    <div class="hline"></div>
+
+    <div class="section items">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left">Particulars</th>
+            <th class="rate">Rate</th>
+            <th class="qty">Qty</th>
+            <th class="amount">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{items}}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section totals">
+      <div class="row"><div>Subtotal</div><div class="big">{{subTotal}}</div></div>
+      <div class="row"><div>Tax</div><div class="big">{{taxTotal}}</div></div>
+      <div class="row"><div style="text-align:left">Total</div><div class="big">{{totalAmount}}</div></div>
+    </div>
+
+    <div class="notes">Amount In Words: {{amountInWords}}</div>
+    <div class="notes">{{terms}}</div>
+
+    <div class="footer">GSTIN: {{companyGSTIN}} • Place of Supply: {{placeOfSupply}}</div>
+  </div>
+</body>
+</html>
