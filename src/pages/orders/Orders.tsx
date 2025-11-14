@@ -32,7 +32,7 @@ export default function Orders() {
             onPress={() => setFilter(f)}
             style={[styles.filterBtn, filter === f && styles.filterActive]}
           >
-            <Text style={styles.filterText}>{f}</Text>
+            <Text style={[styles.filterText,filter===f && styles.activeFilterText]}>{f}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -77,8 +77,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#ffffff',
   },
-  filterActive: { backgroundColor: '#6e4337' },
+  filterActive: { backgroundColor: '#6e4337',
+
+   },
   filterText: { color: '#7a6258', fontWeight: '600' },
+  activeFilterText: { color: '#FFFFFF', fontWeight: '600' },
   filterTextActive: { color: '#fff' },
   floatingBtnText: { color: 'white', fontSize: 28 },
 });
