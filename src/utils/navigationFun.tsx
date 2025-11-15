@@ -1,5 +1,4 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import type { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 

@@ -11,8 +11,9 @@ import {
   Alert,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import { companyDetail, selectCompany } from '../store/companySlice';
-// navigation not required in this screen currently
+import { companyDetail, selectCompany } from '../../store/companySlice';
+import { useNavigation } from '@react-navigation/native';
+import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 
 const ListRow: React.FC<{
   title: string;
@@ -33,7 +34,8 @@ const ListRow: React.FC<{
 export default function Profile() {
   const [termsVisible, setTermsVisible] = useState(false);
   const [aboutVisible, setAboutVisible] = useState(false);
-  const company :companyDetail = useSelector(selectCompany)
+  const company: companyDetail = useSelector(selectCompany);
+  const navigation = useNavigation<any>();
 
   const openEmail = () => {
     const to = 'ceo@kodikas.in';
@@ -42,7 +44,6 @@ export default function Profile() {
     const url = `mailto:${to}?subject=${subject}&body=${body}`;
     Linking.canOpenURL(url)
       .then(supported => {
-        console.log('supported', supported);
         if (supported) Linking.openURL(url);
         else Alert.alert('No email client configured');
       })
@@ -54,31 +55,26 @@ export default function Profile() {
     Linking.openURL(url).catch(() => Alert.alert('Unable to open link'));
   };
 
-  // const handleLogout = () => {
-  //   Alert.alert('Logout', 'Are you sure you want to logout?', [
-  //     { text: 'Cancel', style: 'cancel' },
-  //     {
-  //       text: 'Logout',
-  //       style: 'destructive',
-  //       onPress: () => {
-  //         // If your app has auth state, clear it here. For now just navigate home.
-  //         navigation.navigate('Home')
-  //       },
-  //     },
-  //   ])
-  // }
+  
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <View style={styles.pageHeader}>
-        <Text style={styles.pageTitle}>Profile</Text>
-      </View> */}
-
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.userCard}>
-          <Text style={styles.userSmall}>{company.companyName}</Text>
-          <Text style={styles.userEmail}>{company.email}</Text>
+        <View style={[styles.userCard, styles.userCardRow]}>
+          <View>
+            <Text style={styles.userSmall}>Company details</Text>
+            <Text style={styles.userEmail}>{company.companyName}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('EditProfile')}
+            style={styles.editBtn}
+            accessibilityLabel="Edit company details"
+          >
+           <MaterialDesignIcons name="square-edit-outline" color={"#6e4337"} size={32} />
+          </TouchableOpacity>
         </View>
+
+        {/* Profile is read-only; tap edit icon to open edit screen */}
 
         <ListRow
           title="Terms & Conditions"
@@ -103,10 +99,6 @@ export default function Profile() {
           subtitle="Share feedback"
           onPress={handleRate}
         />
-
-        {/* <TouchableOpacity style={styles.logoutBtn} onPress={() => Alert.alert('Logout', 'Logged out (placeholder)')}>
-          <Text style={styles.logoutText}>⟲  Logout</Text>
-        </TouchableOpacity> */}
       </ScrollView>
 
       <Modal
@@ -198,4 +190,21 @@ const styles = StyleSheet.create({
   paragraph: { marginBottom: 12, lineHeight: 20, color: '#333' },
   logoutBtn: { backgroundColor: '#6e4337', paddingVertical: 12, borderRadius: 10, alignItems: 'center', marginTop: 12 },
   logoutText: { color: '#fff', fontWeight: '700' },
+  label: { marginTop: 8, fontWeight: '600', color: '#3a241f' },
+  input: {
+    backgroundColor: '#f2f0ee',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  multiline: { minHeight: 80, textAlignVertical: 'top' },
+  saveBtn: { backgroundColor: '#6e4337', paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginTop: 12 },
+  saveBtnText: { color: '#fff', fontWeight: '700' },
+  spacer12: { height: 12 },
+  userCardRow: { flexDirection: 'row', alignItems: 'center' },
+  editBtn: {alignSelf:'flex-end',marginLeft:12},
+  editIcon: { fontSize: 18, color: '#6e4337' },
 });
