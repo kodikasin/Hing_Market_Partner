@@ -45,8 +45,8 @@ const Dashboard = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.headerSmall}>Home</Text>
-        <Text style={styles.headerTitle}>{company?.companyName || 'RsHing'}</Text>
+        {/* <Text style={styles.headerSmall}>Home</Text> */}
+        <Text style={styles.headerTitle}>{company?.companyName || 'Rs Hing'}</Text>
       </View>
 
       <View style={styles.cardsRow}>

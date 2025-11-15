@@ -10,6 +10,8 @@ import {
   Linking,
   Alert,
 } from 'react-native';
+import { useSelector } from 'react-redux';
+import { companyDetail, selectCompany } from '../store/companySlice';
 // navigation not required in this screen currently
 
 const ListRow: React.FC<{
@@ -31,6 +33,7 @@ const ListRow: React.FC<{
 export default function Profile() {
   const [termsVisible, setTermsVisible] = useState(false);
   const [aboutVisible, setAboutVisible] = useState(false);
+  const company :companyDetail = useSelector(selectCompany)
 
   const openEmail = () => {
     const to = 'ceo@kodikas.in';
@@ -67,14 +70,14 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.pageHeader}>
+      {/* <View style={styles.pageHeader}>
         <Text style={styles.pageTitle}>Profile</Text>
-      </View>
+      </View> */}
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.userCard}>
-          <Text style={styles.userSmall}>Partner Name</Text>
-          <Text style={styles.userEmail}>partner@example.com</Text>
+          <Text style={styles.userSmall}>{company.companyName}</Text>
+          <Text style={styles.userEmail}>{company.email}</Text>
         </View>
 
         <ListRow

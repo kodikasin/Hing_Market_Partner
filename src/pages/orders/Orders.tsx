@@ -21,9 +21,9 @@ export default function Orders() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.headerTitle}>Orders</Text>
-      </View>
+      </View> */}
 
       <View style={styles.filtersRow}>
         {filters.map(f => (
