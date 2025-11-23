@@ -54,27 +54,32 @@ export default function OrderDetail() {
           keyExtractor={it => it.id}
           renderItem={({ item }) => (
             <View style={styles.itemCard}>
-              <View style={{flexDirection:'row',columnGap:8}}>
+              <View style={{ flexDirection: 'row', columnGap: 8 }}>
                 <Text style={styles.itemName}>{item.name}</Text>
                 <Text style={styles.totalsLabel}>{item.quantity}g</Text>
               </View>
+              {/* <Text style={styles.itemPrice}>
+                ₹{item?.unit || ''} x ₹{item?.rate || ''}
+              </Text> */}
 
-              <Text style={styles.itemPrice}>₹{item.total.toFixed(2)}</Text>
+              <Text style={styles.itemPrice}>
+                {item.total != null ? `₹${item.total.toFixed(2)}` : ''}
+              </Text>
             </View>
           )}
         />
       </View>
 
       <View style={styles.totalsCard}>
-        <View style={styles.totalsRow}>
+        {/* <View style={styles.totalsRow}>
           <Text style={styles.totalsLabel}>Taxes: {order.taxes}%</Text>
           <Text style={styles.totalsValue}>
             ₹{(order.totalAmount * (order.taxes / 100)).toFixed(2)}
           </Text>
-        </View>
+        </View> */}
         <View style={styles.totalsRow}>
-          <Text style={styles.totalsLabel}>Discount: ₹{order.discount}</Text>
-          <Text />
+          <Text style={styles.totalsLabel}>Discount:</Text>
+          <Text style={styles.totalsValue}>- ₹{order.discount}</Text>
         </View>
         <View style={styles.totalsDivider} />
         <View style={styles.totalsRowMarginTop}>
