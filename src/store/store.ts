@@ -53,14 +53,18 @@ store.subscribe(() => {
     const ordersJson = JSON.stringify(toPersist);
     if (ordersJson !== lastOrdersJSON) {
       lastOrdersJSON = ordersJson;
-      AsyncStorage.setItem(ORDERS_KEY, ordersJson).catch(e => console.warn('persist orders failed', e));
+      AsyncStorage.setItem(ORDERS_KEY, ordersJson).catch(e =>
+        console.warn('persist orders failed', e),
+      );
     }
 
     const company = state.company || {};
     const companyJson = JSON.stringify(company);
     if (companyJson !== lastCompanyJSON) {
       lastCompanyJSON = companyJson;
-      AsyncStorage.setItem(COMPANY_KEY, companyJson).catch(e => console.warn('persist company failed', e));
+      AsyncStorage.setItem(COMPANY_KEY, companyJson).catch(e =>
+        console.warn('persist company failed', e),
+      );
     }
   } catch (e) {
     console.warn('store subscribe error', e);

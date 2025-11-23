@@ -1,8 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+
+export type address = {
+    street : string;
+    city:string;
+    pincode:number;
+    state:string
+    country:string
+}
+
 export type companyDetail = {
     companyName: string;
-    address: string;
+    address: address;
     mobileNo: string;
     gstNo: string;
     email: string;
@@ -10,7 +19,13 @@ export type companyDetail = {
 
 const initialState: companyDetail = {
     companyName: 'Rs Hing',
-    address: 'pathwari gali garhi tamana hathras',
+    address: {
+        street:'pathwari gali',
+        city:'Hathras',
+        pincode:204101,
+        state:'Uttar Pradesh',
+        country:'india'
+    },
     mobileNo: '1234567890',
     gstNo: '123456789012345',
     email: 'rajansingh@gmail.com',

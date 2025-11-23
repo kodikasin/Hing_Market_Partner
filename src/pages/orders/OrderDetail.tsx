@@ -54,7 +54,11 @@ export default function OrderDetail() {
           keyExtractor={it => it.id}
           renderItem={({ item }) => (
             <View style={styles.itemCard}>
-              <Text style={styles.itemName}>{item.name}</Text>
+              <View style={{flexDirection:'row',columnGap:8}}>
+                <Text style={styles.itemName}>{item.name}</Text>
+                <Text style={styles.totalsLabel}>{item.quantity}g</Text>
+              </View>
+
               <Text style={styles.itemPrice}>₹{item.total.toFixed(2)}</Text>
             </View>
           )}
@@ -122,13 +126,27 @@ export default function OrderDetail() {
           ]}
           onPress={() => toggle('delivered')}
         >
-          <Text style={[styles.statusText,{color:order.status.delivered ? '#FFF':'#5b4037'}]}>🚚 Delivered</Text>
+          <Text
+            style={[
+              styles.statusText,
+              { color: order.status.delivered ? '#FFF' : '#5b4037' },
+            ]}
+          >
+            🚚 Delivered
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.statusBtn, order.status.paid && styles.statusActive]}
           onPress={() => toggle('paid')}
         >
-          <Text style={[styles.statusText,{color:order.status.paid ? '#FFF':'#5b4037'}]}>💰 Paid</Text>
+          <Text
+            style={[
+              styles.statusText,
+              { color: order.status.paid ? '#FFF' : '#5b4037' },
+            ]}
+          >
+            💰 Paid
+          </Text>
         </TouchableOpacity>
       </View>
 
