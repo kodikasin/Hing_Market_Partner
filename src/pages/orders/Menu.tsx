@@ -4,15 +4,12 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
-  Platform,
   Animated,
 } from 'react-native';
 import React, { useRef, useState } from 'react';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { Order, removeOrder } from '../../store/orderSlice';
-import Share from 'react-native-share';
-import RNFS from 'react-native-fs';
 import { generatePDF } from 'react-native-html-to-pdf';
 import { generateDeliveryChallanHtml, IData } from './htmlToPdf';
 import { companyDetail, selectCompany } from '../../store/companySlice';
@@ -20,6 +17,7 @@ import {
   itemsTotalAmount,
   // itemsTotalQuantity,
   numberToWords,
+  shareFile,
 } from '../../utils/orderFun';
 
 interface IMenu {
@@ -112,21 +110,11 @@ const Menu = ({ order, navigation }: IMenu) => {
       console.log('pdf path:', path);
 
       // sanity check: file exists
-      const exists = await RNFS.exists(path);
-      if (!exists) throw new Error('PDF file not found at: ' + path);
-
-      // react-native-share works with file:// URIs on Android and direct path on iOS
-      const url = Platform.OS === 'android' ? `file://${path}` : path;
-
-      const shareOptions = {
-        url,
-        type: 'application/pdf',
-        filename: `Invoice_${order.customerName}_${order.id}`,
-        subject: `Invoice for ${order.customerName}`,
-        message: `Invoice for ${order.customerName}`,
-      };
-
-      await Share.open(shareOptions);
+      await shareFile({
+        path,
+        customerName: order.customerName,
+        orderId: order.id,
+      });
     } catch (err) {
       console.warn('PDF share error', err);
       // show user friendly message if needed
@@ -134,12 +122,15 @@ const Menu = ({ order, navigation }: IMenu) => {
   }
 
   const viewPdfHandler = async () => {
-    setIsMenuOpen(false)
+    setIsMenuOpen(false);
     const file = await createPdfFile();
+    console.log('file', file);
 
     navigation.navigate('PdfViewer', {
       uri: file.filePath,
       page: 1,
+      customerName: order.customerName,
+      orderId: order.id,
     });
   };
 

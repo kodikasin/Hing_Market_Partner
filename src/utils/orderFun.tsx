@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { OrderItem } from '../store/orderSlice';
 
 export const itemsTotalQuantity = (items: OrderItem[]) => {
@@ -11,7 +12,7 @@ export const itemsTotalQuantity = (items: OrderItem[]) => {
 export const itemsTotalAmount = (items: OrderItem[]) => {
   let amount = 0;
   items.forEach(item => {
-    amount = amount + item.total;
+    amount = amount + (item?.total || 0);
   });
 
   return amount;
@@ -82,4 +83,31 @@ export function numberToWords(items: OrderItem[]) {
   if (thousand) words += threeDigit(thousand) + ' Thousand ';
   if (hundred) words += threeDigit(hundred);
   return words.trim();
+}
+
+import RNFS from 'react-native-fs';
+import Share from 'react-native-share';
+
+type ShareFileData = {
+  path:string;
+  customerName:string;
+  orderId:string;
+}
+
+export const shareFile = async({path = '',customerName='',orderId=''}:ShareFileData) => {
+   const exists = await RNFS.exists(path);
+      if (!exists) throw new Error('PDF file not found at: ' + path);
+
+      // react-native-share works with file:// URIs on Android and direct path on iOS
+      const url = Platform.OS === 'android' ? `file://${path}` : path;
+
+      const shareOptions = {
+        url,
+        type: 'application/pdf',
+        filename: `Invoice_${customerName}_${orderId}`,
+        subject: `Invoice for ${customerName}`,
+        message: `Invoice for ${customerName}`,
+      };
+
+      await Share.open(shareOptions);
 }

@@ -1,18 +1,23 @@
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import React, { useRef, useEffect } from 'react';
 import Pdf from 'react-native-pdf';
 import { useRoute } from '@react-navigation/native';
+import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+import { shareFile } from '../utils/orderFun';
 
 type RouteParams = {
   uri?: string;
   page?: number;
+  customerName?: string;
+  orderId?: string;
 };
 
 const PdfViewer: React.FC = () => {
   const route = useRoute();
   // route.params may be undefined; coerce carefully
   const params = (route.params || {}) as RouteParams;
-  const uri = params.uri || 'http://samples.leanpub.com/thereactnativebook-sample.pdf';
+  const uri =
+    params.uri || 'http://samples.leanpub.com/thereactnativebook-sample.pdf';
   const initialPage = params.page && params.page > 0 ? params.page : 1;
 
   const pdfRef = useRef<any>(null);
@@ -34,6 +39,20 @@ const PdfViewer: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.headerView}>
+        <TouchableOpacity
+          style={styles.shareButton}
+          onPress={() =>
+            shareFile({
+              path: params.uri || uri,
+              customerName: params.customerName || '',
+              orderId: params.orderId || '',
+            })
+          }
+        >
+          <MaterialDesignIcons name="share-variant" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
       <Pdf
         ref={pdfRef}
         source={source}
@@ -69,5 +88,21 @@ const styles = StyleSheet.create({
     flex: 1,
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
+  },
+  headerView: {
+    width: '100%',
+    alignItems: 'flex-end',
+    marginRight: 8,
+  },
+  shareButton: {
+    backgroundColor: '#5b4037',
+    padding: 10,
+    borderRadius: 40,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    marginRight: 8,
   },
 });
