@@ -56,12 +56,12 @@ export const generateDeliveryChallanHtml = ({
       return `
         <tr>
           <td class="center">${index + 1}</td>
-          <td>${item.name}</td>
+          <td>${item.name + ' ( ' + item.quantity + ' g ' + ' ) '}</td>
           <td class="center">${item.hsn || ''}</td>
           <td class="center">${item.quantity}</td>
           <td class="center">${item.unit || ''}</td>
           <td class="right">${item.rate?.toFixed?.(2) ?? ''}</td>
-          <td class="right">${item.gstAmount?.toFixed?.(2) ?? ''}</td>
+          <td class="right">${item.tax?.toFixed?.(2) ?? ''}</td>
           <td class="right">${item.total?.toFixed?.(2) ?? ''}</td>
         </tr>
       `;
@@ -156,10 +156,10 @@ export const generateDeliveryChallanHtml = ({
             <th style="width:4%">#</th>
             <th style="width:30%">Item Name</th>
             <th style="width:10%">HSN / SAC</th>
-            <th style="width:8%" class="center">Quantity</th>
+            <th style="width:8%" class="center">Quantity(g)</th>
             <th style="width:8%" class="center">Unit</th>
             <th style="width:12%" class="right">Price/ Unit (₹)</th>
-            <th style="width:10%" class="right">GST(₹)</th>
+            <th style="width:10%" class="right">GST(%)</th>
             <th style="width:12%" class="right">Amount(₹)</th>
           </tr>
         </thead>

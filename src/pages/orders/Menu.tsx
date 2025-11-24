@@ -16,7 +16,11 @@ import RNFS from 'react-native-fs';
 import { generatePDF } from 'react-native-html-to-pdf';
 import { generateDeliveryChallanHtml, IData } from './htmlToPdf';
 import { companyDetail, selectCompany } from '../../store/companySlice';
-import { itemsTotalAmount, itemsTotalQuantity, numberToWords } from '../../utils/orderFun';
+import {
+  itemsTotalAmount,
+  // itemsTotalQuantity,
+  numberToWords,
+} from '../../utils/orderFun';
 
 interface IMenu {
   order: Order;
@@ -57,44 +61,53 @@ const Menu = ({ order, navigation }: IMenu) => {
     }
   };
 
+  const createPdfFile = async () => {
+    let data: IData = {
+      companyName: companyData.companyName,
+      companyAddress: companyData.address,
+      companyPhone: companyData.mobileNo,
+      companyState: '',
+      companyGSTIN: companyData.gstNo,
+      customerName: order.customerName,
+      customerAddressLine: order.address,
+      challanNo: '',
+      challanDate: order.createdAt,
+      placeOfSupply: order.address,
+      items: order.items,
+      totalQuantity: '',
+      taxTotal: '',
+      totalAmount: itemsTotalAmount(order.items),
+      taxSummary: [],
+      taxableTotal: '',
+      subTotal: '',
+      amountInWords: numberToWords(order.items),
+      terms: '',
+      companyShort: '',
+      signatureImage: '',
+    };
+
+    const html = generateDeliveryChallanHtml(data);
+
+    const file = await generatePDF({
+      html,
+      fileName: `Invoice_${(order.customerName || 'customer').replace(
+        /\s+/g,
+        '_',
+      )}_${order.id}`,
+      base64: false,
+      width: 595,
+      height: 842,
+    });
+
+    return file;
+  };
+
   async function onSharePDF() {
     setIsMenuOpen(false);
 
     try {
-      let data: IData = {
-        companyName: companyData.companyName,
-        companyAddress: companyData.address,
-        companyPhone: companyData.mobileNo,
-        companyState: '',
-        companyGSTIN: companyData.gstNo,
-        customerName: order.customerName,
-        customerAddressLine: order.address,
-        challanNo: '',
-        challanDate: order.createdAt,
-        placeOfSupply: order.address,
-        items: order.items,
-        totalQuantity: itemsTotalQuantity(order.items),
-        taxTotal: '',
-        totalAmount: itemsTotalAmount(order.items),
-        taxSummary: [],
-        taxableTotal: '',
-        subTotal: '',
-        amountInWords: numberToWords(order.items),
-        terms: '',
-        companyShort: '',
-        signatureImage: '',
-      };
+      const file = await createPdfFile();
 
-      const html = generateDeliveryChallanHtml(data);
-
-      const file = await generatePDF({
-        html,
-        fileName: `Invoice_${(order.customerName || 'customer').replace(
-          /\s+/g,
-          '_',
-        )}_${order.id}`,
-        base64: false,
-      });
       const path = file.filePath; // e.g. /data/user/0/.../cache/Invoice_...pdf
       console.log('pdf path:', path);
 
@@ -119,6 +132,16 @@ const Menu = ({ order, navigation }: IMenu) => {
       // show user friendly message if needed
     }
   }
+
+  const viewPdfHandler = async () => {
+    setIsMenuOpen(false)
+    const file = await createPdfFile();
+
+    navigation.navigate('PdfViewer', {
+      uri: file.filePath,
+      page: 1,
+    });
+  };
 
   function onEdit() {
     // close menu immediately when an action is chosen
@@ -164,13 +187,10 @@ const Menu = ({ order, navigation }: IMenu) => {
               <Text style={styles.menuText}> Share PDF</Text>
             </TouchableOpacity>
 
-            {/* <TouchableOpacity
-              style={styles.menuItem}
-              onPress={onSharePDFMobile}
-            >
-              <MaterialDesignIcons name="share" size={18} color="#5b4037" />
-              <Text style={styles.menuText}> Share PDF (Mobile)</Text>
-            </TouchableOpacity> */}
+            <TouchableOpacity style={styles.menuItem} onPress={viewPdfHandler}>
+              <MaterialDesignIcons name="eye" size={18} color="#5b4037" />
+              <Text style={styles.menuText}> View Pdf</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity style={styles.menuItem} onPress={onEdit}>
               <MaterialDesignIcons name="pencil" size={18} color="#5b4037" />
