@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -80,6 +81,44 @@ function OrderDetailHeader({ order, navigation }: any) {
 }
 
 function OrderDetailFooter({ order, toggle }: any) {
+  // helper to determine allowed transitions
+  function canToggle(key: keyof typeof order.status) {
+    if (key === 'received') return true;
+    if (key === 'couriered') return !!order.status.received;
+    if (key === 'delivered') return !!order.status.couriered;
+    if (key === 'paid') return !!order.status.delivered; // require delivered first
+    return false;
+  }
+
+  function handleToggle(key: keyof typeof order.status) {
+    if (!canToggle(key) && !order.status[key]) {
+      Alert.alert('Hold on', 'Please mark previous status first.');
+      return;
+    }
+    toggle(key);
+  }
+
+  function timeAgo(ts: string | number) {
+    const diff = Date.now() - new Date(ts).getTime();
+    const s = Math.floor(diff / 1000);
+    if (s < 60) return `${s}s ago`;
+    const m = Math.floor(s / 60);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    return new Date(ts).toLocaleString();
+  }
+
+  const statuses: Array<{ key: keyof typeof order.status; label: string; emoji: string }> = [
+    { key: 'received', label: 'Received', emoji: '✅' },
+    { key: 'couriered', label: 'Couriered', emoji: '📦' },
+    { key: 'delivered', label: 'Delivered', emoji: '🚚' },
+    { key: 'paid', label: 'Paid', emoji: '💰' },
+  ];
+
+  // render most recent first
+  const timeline = Array.isArray(order.timeline) ? [...order.timeline].reverse() : [];
+
   return (
     <View>
       <View style={styles.totalsCard}>
@@ -96,26 +135,34 @@ function OrderDetailFooter({ order, toggle }: any) {
 
       <Text style={styles.sectionTitleMargin6}>Status</Text>
       <View style={styles.statusRow}>
-        <TouchableOpacity style={[styles.statusBtn, order.status.received && styles.statusActive]} onPress={() => toggle('received')}>
-          <Text style={[styles.statusText, order.status.received ? styles.statusTextActive : styles.statusTextInactive]}>✅ Received</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.statusBtn, order.status.couriered && styles.statusActive]} onPress={() => toggle('couriered')}>
-          <Text style={[styles.statusText, order.status.couriered ? styles.statusTextActive : styles.statusTextInactive]}>📦 Couriered</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.statusBtn, order.status.delivered && styles.statusActive]} onPress={() => toggle('delivered')}>
-          <Text style={[styles.statusText, order.status.delivered ? styles.statusTextActive : styles.statusTextInactive]}>🚚 Delivered</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.statusBtn, order.status.paid && styles.statusActive]} onPress={() => toggle('paid')}>
-          <Text style={[styles.statusText, order.status.paid ? styles.statusTextActive : styles.statusTextInactive]}>💰 Paid</Text>
-        </TouchableOpacity>
+        {statuses.map(s => {
+          const active = !!order.status[s.key];
+          const allowed = canToggle(s.key);
+          return (
+            <TouchableOpacity
+              key={String(s.key)}
+              activeOpacity={0.8}
+              onPress={() => handleToggle(s.key)}
+              disabled={!allowed && !active}
+              style={[
+                styles.statusBtnModern,
+                active ? styles.statusActiveModern : null,
+                !allowed && !active ? styles.statusBtnDisabled : null,
+              ]}
+            >
+              <Text style={active ? styles.statusEmojiActive : styles.statusEmoji}>{s.emoji}</Text>
+              <Text style={[styles.statusTextModern, active ? styles.statusTextActive : styles.statusTextInactive]}>{s.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       <Text style={styles.sectionTitleMargin12}>Timeline</Text>
       <View style={styles.timelineContainer}>
-        {order.timeline.map((t: any, i: number) => (
+        {timeline.map((t: any, i: number) => (
           <View key={i} style={styles.timelineRow}>
             <Text style={styles.timelineStatus}>{t.status}</Text>
-            <Text style={styles.timelineTime}>{new Date(t.timestamp).toLocaleString()}</Text>
+            <Text style={styles.timelineTime}>{timeAgo(t.timestamp)}</Text>
           </View>
         ))}
       </View>
@@ -230,4 +277,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 12,
   },
+  statusBtnModern: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginRight: 10,
+    marginBottom: 8,
+    backgroundColor: '#eadfd9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 78,
+  },
+  statusBtnDisabled: { opacity: 0.5, backgroundColor: '#f5f5f5' },
+  statusActiveModern: { backgroundColor: '#2e86de' },
+  statusEmoji: { fontSize: 18, marginBottom: 4 },
+  statusEmojiActive: { fontSize: 18, marginBottom: 4, color: '#fff' },
+  statusTextModern: { fontWeight: '700', fontSize: 13 },
 });
