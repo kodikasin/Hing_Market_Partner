@@ -4,8 +4,11 @@ export type OrderItem = {
   id: string;
   name: string;
   quantity: number;
+  unit?: string;
   rate: number;
-  total: number;
+  baseTotal?: number;
+  tax?: number;
+  total?: number; // per-item tax amount
 };
 
 export type OrderStatus = {
@@ -26,7 +29,7 @@ export type Order = {
   phone?: string;
   address?: string;
   items: OrderItem[];
-  taxes: number;
+  taxes?: number;
   discount: number;
   totalAmount: number;
   notes?: string;
@@ -65,7 +68,10 @@ const orderSlice = createSlice({
       const idx = state.orders.findIndex(o => o.id === action.payload.id);
       if (idx >= 0) state.orders[idx] = action.payload;
     },
-    toggleStatus(state, action: PayloadAction<{ id: string; statusKey: keyof OrderStatus }>) {
+    toggleStatus(
+      state,
+      action: PayloadAction<{ id: string; statusKey: keyof OrderStatus }>,
+    ) {
       const { id, statusKey } = action.payload;
       const order = state.orders.find(o => o.id === id);
       if (!order) return;
@@ -73,7 +79,10 @@ const orderSlice = createSlice({
       (order.status as any)[statusKey] = !(order.status as any)[statusKey];
       order.timeline.push({ status: statusKey, timestamp: now() });
     },
-    addTimeline(state, action: PayloadAction<{ id: string; status: keyof OrderStatus }>) {
+    addTimeline(
+      state,
+      action: PayloadAction<{ id: string; status: keyof OrderStatus }>,
+    ) {
       const { id, status } = action.payload;
       const order = state.orders.find(o => o.id === id);
       if (!order) return;
@@ -81,11 +90,18 @@ const orderSlice = createSlice({
     },
     removeOrder(state, action: PayloadAction<string>) {
       state.orders = state.orders.filter(o => o.id !== action.payload);
-    }
-  }
+    },
+  },
 });
 
-export const { setOrders, addOrder, updateOrder, toggleStatus, addTimeline, removeOrder } = orderSlice.actions;
+export const {
+  setOrders,
+  addOrder,
+  updateOrder,
+  toggleStatus,
+  addTimeline,
+  removeOrder,
+} = orderSlice.actions;
 
 export default orderSlice.reducer;
 
