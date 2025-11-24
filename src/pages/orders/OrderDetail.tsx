@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native';
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -35,7 +34,35 @@ export default function OrderDetail() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <FlatList
+      data={order.items}
+      keyExtractor={it => it.id}
+      renderItem={({ item }) => (
+        <View style={styles.itemCard}>
+          <View style={styles.itemRow}>
+            <Text style={styles.itemName}>{item.name}</Text>
+            <Text style={styles.itemQuantity}>{item.quantity}g</Text>
+          </View>
+          <Text style={styles.itemPrice}>
+            {item.total != null ? `₹${item.total.toFixed(2)}` : ''}
+          </Text>
+        </View>
+      )}
+      ListHeaderComponent={
+        <OrderDetailHeader order={order} navigation={navigation} />
+      }
+      ListFooterComponent={
+        <OrderDetailFooter order={order} toggle={toggle} />
+      }
+      contentContainerStyle={styles.content}
+      style={styles.container}
+    />
+  );
+}
+
+function OrderDetailHeader({ order, navigation }: any) {
+  return (
+    <View>
       <View style={styles.headerRow}>
         <Text style={styles.title}>{order.customerName}</Text>
         <Menu order={order} navigation={navigation} />
@@ -48,35 +75,14 @@ export default function OrderDetail() {
       </View>
 
       <Text style={styles.sectionTitle}>Items</Text>
-      <View style={styles.itemsContainer}>
-        <FlatList
-          data={order.items}
-          keyExtractor={it => it.id}
-          renderItem={({ item }) => (
-            <View style={styles.itemCard}>
-              <View style={{ flexDirection: 'row', columnGap: 8 }}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.totalsLabel}>{item.quantity}g</Text>
-              </View>
-              {/* <Text style={styles.itemPrice}>
-                ₹{item?.unit || ''} x ₹{item?.rate || ''}
-              </Text> */}
+    </View>
+  );
+}
 
-              <Text style={styles.itemPrice}>
-                {item.total != null ? `₹${item.total.toFixed(2)}` : ''}
-              </Text>
-            </View>
-          )}
-        />
-      </View>
-
+function OrderDetailFooter({ order, toggle }: any) {
+  return (
+    <View>
       <View style={styles.totalsCard}>
-        {/* <View style={styles.totalsRow}>
-          <Text style={styles.totalsLabel}>Taxes: {order.taxes}%</Text>
-          <Text style={styles.totalsValue}>
-            ₹{(order.totalAmount * (order.taxes / 100)).toFixed(2)}
-          </Text>
-        </View> */}
         <View style={styles.totalsRow}>
           <Text style={styles.totalsLabel}>Discount:</Text>
           <Text style={styles.totalsValue}>- ₹{order.discount}</Text>
@@ -84,89 +90,36 @@ export default function OrderDetail() {
         <View style={styles.totalsDivider} />
         <View style={styles.totalsRowMarginTop}>
           <Text style={[styles.totalsLabel, styles.finalLabel]}>Total:</Text>
-          <Text style={[styles.totalsValue, styles.finalLabel]}>
-            ₹{order.totalAmount}
-          </Text>
+          <Text style={[styles.totalsValue, styles.finalLabel]}>₹{order.totalAmount}</Text>
         </View>
       </View>
 
       <Text style={styles.sectionTitleMargin6}>Status</Text>
       <View style={styles.statusRow}>
-        <TouchableOpacity
-          style={[
-            styles.statusBtn,
-            order.status.received && styles.statusActive,
-          ]}
-          onPress={() => toggle('received')}
-        >
-          <Text
-            style={[
-              styles.statusText,
-              { color: order.status.received ? '#FFF' : '#5b4037' },
-            ]}
-          >
-            ✅ Received
-          </Text>
+        <TouchableOpacity style={[styles.statusBtn, order.status.received && styles.statusActive]} onPress={() => toggle('received')}>
+          <Text style={[styles.statusText, order.status.received ? styles.statusTextActive : styles.statusTextInactive]}>✅ Received</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.statusBtn,
-            order.status.couriered && styles.statusActive,
-          ]}
-          onPress={() => toggle('couriered')}
-        >
-          <Text
-            style={[
-              styles.statusText,
-              { color: order.status.couriered ? '#FFF' : '#5b4037' },
-            ]}
-          >
-            📦 Couriered
-          </Text>
+        <TouchableOpacity style={[styles.statusBtn, order.status.couriered && styles.statusActive]} onPress={() => toggle('couriered')}>
+          <Text style={[styles.statusText, order.status.couriered ? styles.statusTextActive : styles.statusTextInactive]}>📦 Couriered</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.statusBtn,
-            order.status.delivered && styles.statusActive,
-          ]}
-          onPress={() => toggle('delivered')}
-        >
-          <Text
-            style={[
-              styles.statusText,
-              { color: order.status.delivered ? '#FFF' : '#5b4037' },
-            ]}
-          >
-            🚚 Delivered
-          </Text>
+        <TouchableOpacity style={[styles.statusBtn, order.status.delivered && styles.statusActive]} onPress={() => toggle('delivered')}>
+          <Text style={[styles.statusText, order.status.delivered ? styles.statusTextActive : styles.statusTextInactive]}>🚚 Delivered</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.statusBtn, order.status.paid && styles.statusActive]}
-          onPress={() => toggle('paid')}
-        >
-          <Text
-            style={[
-              styles.statusText,
-              { color: order.status.paid ? '#FFF' : '#5b4037' },
-            ]}
-          >
-            💰 Paid
-          </Text>
+        <TouchableOpacity style={[styles.statusBtn, order.status.paid && styles.statusActive]} onPress={() => toggle('paid')}>
+          <Text style={[styles.statusText, order.status.paid ? styles.statusTextActive : styles.statusTextInactive]}>💰 Paid</Text>
         </TouchableOpacity>
       </View>
 
       <Text style={styles.sectionTitleMargin12}>Timeline</Text>
       <View style={styles.timelineContainer}>
-        {order.timeline.map((t, i) => (
+        {order.timeline.map((t: any, i: number) => (
           <View key={i} style={styles.timelineRow}>
             <Text style={styles.timelineStatus}>{t.status}</Text>
-            <Text style={styles.timelineTime}>
-              {new Date(t.timestamp).toLocaleString()}
-            </Text>
+            <Text style={styles.timelineTime}>{new Date(t.timestamp).toLocaleString()}</Text>
           </View>
         ))}
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
@@ -209,6 +162,8 @@ const styles = StyleSheet.create({
   },
   itemName: { color: '#3a241f', fontWeight: '600' },
   itemPrice: { color: '#3a241f', fontWeight: '700' },
+  itemRow: { flexDirection: 'row', alignItems: 'center' },
+  itemQuantity: { marginLeft: 8, color: '#7a6258' },
   totalsCard: {
     backgroundColor: '#fff6f4',
     padding: 12,
@@ -237,6 +192,8 @@ const styles = StyleSheet.create({
   },
   statusActive: { backgroundColor: '#6e4337' },
   statusText: { fontWeight: '700' },
+  statusTextActive: { color: '#FFF' },
+  statusTextInactive: { color: '#5b4037' },
   timelineContainer: { marginTop: 8, marginBottom: 20 },
   timelineRow: {
     backgroundColor: '#fff',

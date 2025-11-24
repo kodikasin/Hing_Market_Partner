@@ -5,7 +5,6 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { selectOrders, Order } from '../store/orderSlice';
@@ -43,9 +42,69 @@ const Dashboard = () => {
   }, [orders]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <FlatList
+      data={recentOrders}
+      keyExtractor={item => item.id}
+      renderItem={({ item }) => (
+        <OrderRow
+          order={item}
+          onPress={() =>
+            navigation.navigate('Orders' as any, {
+              screen: 'OrderDetail',
+              params: { orderId: item.id },
+            })
+          }
+        />
+      )}
+      ListEmptyComponent={ListEmpty}
+      contentContainerStyle={[styles.content, styles.listContent]}
+      ListHeaderComponent={
+        <DashboardHeader
+          company={company}
+          totalOrders={totalOrders}
+          totalEarnings={totalEarnings}
+          todayEarnings={todayEarnings}
+          unpaidCount={unpaidCount}
+          navigation={navigation}
+        />
+      }
+      style={styles.container}
+    />
+  );
+};
+
+function OrderRow({ order, onPress }: { order: Order; onPress: () => void }) {
+  const status = order.status.delivered ? 'Delivered' : order.status.paid ? 'Paid' : 'Pending'
+  return (
+    <TouchableOpacity style={styles.orderCard} onPress={onPress}>
+      <View>
+        <View style={styles.rowCenter}>
+          <Text style={styles.name}>{order.customerName}</Text>
+          <View style={[styles.statusPill, status === 'Pending' ? styles.pendingPill : styles.paidPill]}>
+            <Text style={styles.pillText}>{status}</Text>
+          </View>
+        </View>
+        <Text style={styles.small}>{order.phone || ''}</Text>
+      </View>
+      <View style={styles.endView}>
+        <Text style={styles.total}>₹{order.totalAmount.toFixed(2)}</Text>
+        <Text style={styles.chev}>{'>'}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function DashboardHeader({
+  company,
+  totalOrders,
+  totalEarnings,
+  todayEarnings,
+  unpaidCount,
+  navigation,
+}: any) {
+  return (
+    <View>
       <View style={styles.header}>
-        {/* <Text style={styles.headerSmall}>Home</Text> */}
         <Text style={styles.headerTitle}>{company?.companyName || 'Rs Hing'}</Text>
       </View>
 
@@ -69,7 +128,7 @@ const Dashboard = () => {
           <View style={styles.countCircle}>
             <Text style={styles.countText}>{unpaidCount}</Text>
           </View>
-          <View style={{ marginLeft: 12 }}>
+          <View style={styles.marginLeft12}>
             <Text style={styles.unpaidTitle}>Unpaid / Pending</Text>
             <Text style={styles.unpaidSubtitle}>{unpaidCount} orders pending</Text>
           </View>
@@ -85,46 +144,7 @@ const Dashboard = () => {
           <Text style={styles.seeAll}>See all</Text>
         </TouchableOpacity>
       </View>
-
-      <FlatList
-        data={recentOrders}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <OrderRow
-            order={item}
-            onPress={() =>
-              navigation.navigate('Orders' as any, {
-                screen: 'OrderDetail',
-                params: { orderId: item.id },
-              })
-            }
-          />
-        )}
-        ListEmptyComponent={ListEmpty}
-        contentContainerStyle={{ paddingBottom: 80 }}
-      />
-    </ScrollView>
-  );
-};
-
-function OrderRow({ order, onPress }: { order: Order; onPress: () => void }) {
-  const status = order.status.delivered ? 'Delivered' : order.status.paid ? 'Paid' : 'Pending'
-  return (
-    <TouchableOpacity style={styles.orderCard} onPress={onPress}>
-      <View>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={styles.name}>{order.customerName}</Text>
-          <View style={[styles.statusPill, status === 'Pending' ? styles.pendingPill : styles.paidPill]}>
-            <Text style={styles.pillText}>{status}</Text>
-          </View>
-        </View>
-        <Text style={styles.small}>{order.phone || ''}</Text>
-      </View>
-      <View style={styles.endView}>
-        <Text style={styles.total}>₹{order.totalAmount.toFixed(2)}</Text>
-        <Text style={styles.chev}>{'>'}</Text>
-      </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -133,6 +153,9 @@ export default Dashboard;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4efe9' },
   content: { padding: 16 },
+  listContent: { paddingBottom: 80 },
+  marginLeft12: { marginLeft: 12 },
+  rowCenter: { flexDirection: 'row', alignItems: 'center' },
   header: { paddingTop: 10, paddingBottom: 18 },
   headerSmall: { color: '#7a4f42', fontSize: 14 },
   headerTitle: { fontSize: 22, fontWeight: '700', color: '#3a241f', marginTop: 4 },
