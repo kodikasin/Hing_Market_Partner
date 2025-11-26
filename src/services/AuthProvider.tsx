@@ -1,18 +1,30 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { getAuthToken, getUserData, setAuthToken as storeAuthToken, setUserData as storeUserData, clearAuthData } from './authStorage';
+import {
+  getAuthToken,
+  getUserData,
+  setAuthToken as storeAuthToken,
+  setUserData as storeUserData,
+  clearAuthData,
+} from './authStorage';
 
 type AuthContextType = {
   loading: boolean;
   isAuthenticated: boolean;
   user: any | null;
-  signIn: (accessToken: string, refreshToken: string, user?: any) => Promise<void>;
+  signIn: (
+    accessToken: string,
+    refreshToken: string,
+    user?: any,
+  ) => Promise<void>;
   signOut: () => Promise<void>;
   setUser: (user: any) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUserState] = useState<any | null>(null);
@@ -24,7 +36,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const token = await getAuthToken();
         const localUser = await getUserData();
         if (!mounted) return;
-        setIsAuthenticated(!!token);
+
+        setIsAuthenticated(token ? true : false);
+
         setUserState(localUser ?? null);
       } catch {
         if (!mounted) return;
@@ -39,7 +53,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const signIn = async (accessToken: string, refreshToken: string, userObj?: any) => {
+  const signIn = async (
+    accessToken: string,
+    refreshToken: string,
+    userObj?: any,
+  ) => {
     await storeAuthToken(accessToken, refreshToken);
     if (userObj) await storeUserData(userObj);
     setIsAuthenticated(true);
@@ -58,7 +76,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ loading, isAuthenticated, user, signIn, signOut, setUser }}>
+    <AuthContext.Provider
+      value={{ loading, isAuthenticated, user, signIn, signOut, setUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

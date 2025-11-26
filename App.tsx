@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { RealmProvider } from '@realm/react';
 import { realmSchemas } from './src/store/realmConfig';
 import AppNavigation from './src/navigation';

@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import {
-  SafeAreaView,
   View,
   Text,
   StyleSheet,
@@ -14,6 +13,7 @@ import {
 } from 'react-native';
 import { useAuthAPI } from '../services/hooks';
 // navigation props handled generically by navigator
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Login(props: any) {
   const { navigation } = props;

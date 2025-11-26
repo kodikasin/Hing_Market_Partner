@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  SafeAreaView,
   View,
   Text,
   StyleSheet,
@@ -16,6 +15,7 @@ import { getUserData } from '../../services/authStorage';
 // import { companyDetail } from '../../store/realmSchemas';
 import { useNavigation } from '@react-navigation/native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ListRow: React.FC<{
   title: string;

@@ -24,7 +24,11 @@ function MainTabs() {
         component={OrdersStackScreen}
         options={{ headerShown: false }}
       />
-      <Tab.Screen name="Profile" component={ProfileStackScreen} options={{ headerShown: false }} />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileStackScreen}
+        options={{ headerShown: false }}
+      />
     </Tab.Navigator>
   );
 }
@@ -39,14 +43,34 @@ function AppContent() {
       <RootStack.Navigator>
         {!isAuthenticated ? (
           <>
-            <RootStack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-            <RootStack.Screen name="Register" component={Register} options={{ headerShown: false }} />
+            <RootStack.Screen
+              name="Login"
+              component={Login}
+              options={{ headerShown: false }}
+            />
+            <RootStack.Screen
+              name="Register"
+              component={Register}
+              options={{ headerShown: false }}
+            />
           </>
         ) : (
           <>
-            <RootStack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
-            <RootStack.Screen name="OrderDetailModal" component={OrderDetail} options={{ title: 'Order Detail' }} />
-            <RootStack.Screen name="PdfViewer" component={PdfViewer} options={{ title: 'PDF Viewer' }} />
+            <RootStack.Screen
+              name="Main"
+              component={MainTabs}
+              options={{ headerShown: false }}
+            />
+            <RootStack.Screen
+              name="OrderDetailModal"
+              component={OrderDetail}
+              options={{ title: 'Order Detail' }}
+            />
+            <RootStack.Screen
+              name="PdfViewer"
+              component={PdfViewer}
+              options={{ title: 'PDF Viewer' }}
+            />
           </>
         )}
       </RootStack.Navigator>
