@@ -7,6 +7,7 @@ import { ProfileStackScreen } from './ProfileStack';
 import { screenOptions } from '../utils/navigationFun';
 import Home from '../pages/Home';
 import PdfViewer from '../components/PdfViewer';
+import OrderDetail from '../pages/orders/OrderDetail';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
@@ -30,6 +31,7 @@ export default function AppNavigation() {
     <NavigationContainer>
       <RootStack.Navigator>
         <RootStack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
+        <RootStack.Screen name="OrderDetailModal" component={OrderDetail} options={{ title: 'Order Detail' }} />
         <RootStack.Screen name="PdfViewer" component={PdfViewer} options={{ title: 'PDF Viewer' }} />
       </RootStack.Navigator>
     </NavigationContainer>

@@ -46,12 +46,12 @@ const Dashboard = () => {
       renderItem={({ item }) => (
         <OrderRow
           order={item}
-          onPress={() =>
-            navigation.navigate('Orders' as any, {
-              screen: 'OrderDetail',
-              params: { orderId: item._id },
-            })
-          }
+          onPress={() => {
+            // Navigate directly to OrderDetailModal from root navigator
+            navigation.navigate('OrderDetailModal' as any, {
+              orderId: item._id,
+            });
+          }}
         />
       )}
       ListEmptyComponent={ListEmpty}
