@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView, SafeAreaView } from 'react-native';
 import { useRealmStore } from '../../store/useRealmStore';
-// import { companyDetail } from '../../store/realmSchemas';
 import { useNavigation } from '@react-navigation/native';
+
+type AddressType = {
+  street?: string;
+  city?: string;
+  pincode?: number;
+  state?: string;
+  country?: string;
+};
 
 export default function EditProfile() {
   const { company, updateCompany } = useRealmStore();
@@ -11,7 +18,7 @@ export default function EditProfile() {
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
   const [mobileNo, setMobileNo] = useState('');
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState<AddressType>({});
   const [gstNo, setGstNo] = useState('');
 
   useEffect(() => {
@@ -19,7 +26,17 @@ export default function EditProfile() {
       setCompanyName(company.companyName || '');
       setEmail(company.email || '');
       setMobileNo(company.mobileNo || '');
-      setAddress(company?.address || '');
+      
+      // Parse address if it's a string (JSON), otherwise use as object
+      try {
+        const addr = typeof company.address === 'string' 
+          ? JSON.parse(company.address)
+          : (company.address || {});
+        setAddress(addr);
+      } catch {
+        setAddress({});
+      }
+      
       setGstNo(company.gstNo || '');
     }
   }, [company]);
@@ -32,13 +49,20 @@ export default function EditProfile() {
       companyName: companyName.trim(),
       email: email.trim(),
       mobileNo: mobileNo.trim(),
-      address: address.trim(),
+      address: JSON.stringify(address) as any,
       gstNo: gstNo.trim(),
     });
 
     Alert.alert('Saved', 'Company details updated');
     navigation.goBack();
   }
+
+  const handleAddressChange = (field: keyof AddressType, value: any) => {
+    setAddress(prev => ({
+      ...prev,
+      [field]: field === 'pincode' ? Number(value) : value,
+    }));
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -69,13 +93,37 @@ export default function EditProfile() {
           keyboardType="phone-pad"
         />
 
-        <Text style={styles.label}>Address</Text>
+        <Text style={styles.label}>Address - Street</Text>
         <TextInput
-          style={[styles.input, styles.multiline]}
-          value={address}
-          onChangeText={setAddress}
-          placeholder="Address"
-          multiline
+          style={styles.input}
+          value={address.street || ''}
+          onChangeText={(value) => handleAddressChange('street', value)}
+          placeholder="Street"
+        />
+
+        <Text style={styles.label}>Address - City</Text>
+        <TextInput
+          style={styles.input}
+          value={address.city || ''}
+          onChangeText={(value) => handleAddressChange('city', value)}
+          placeholder="City"
+        />
+
+        <Text style={styles.label}>Address - State</Text>
+        <TextInput
+          style={styles.input}
+          value={address.state || ''}
+          onChangeText={(value) => handleAddressChange('state', value)}
+          placeholder="State"
+        />
+
+        <Text style={styles.label}>Address - Pincode</Text>
+        <TextInput
+          style={styles.input}
+          value={String(address.pincode || '')}
+          onChangeText={(value) => handleAddressChange('pincode', value)}
+          placeholder="Pincode"
+          keyboardType="numeric"
         />
 
         <Text style={styles.label}>GSTIN</Text>
