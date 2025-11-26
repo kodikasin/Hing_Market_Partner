@@ -8,6 +8,9 @@ import { screenOptions } from '../utils/navigationFun';
 import Home from '../pages/Home';
 import PdfViewer from '../components/PdfViewer';
 import OrderDetail from '../pages/orders/OrderDetail';
+import Login from '../pages/Login';
+import Register from '../pages/Register';
+import { AuthProvider, useAuth } from '../services/AuthProvider';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
@@ -26,14 +29,35 @@ function MainTabs() {
   );
 }
 
-export default function AppNavigation() {
+function AppContent() {
+  const { loading, isAuthenticated } = useAuth();
+
+  if (loading) return null; // or a splash screen
+
   return (
     <NavigationContainer>
       <RootStack.Navigator>
-        <RootStack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
-        <RootStack.Screen name="OrderDetailModal" component={OrderDetail} options={{ title: 'Order Detail' }} />
-        <RootStack.Screen name="PdfViewer" component={PdfViewer} options={{ title: 'PDF Viewer' }} />
+        {!isAuthenticated ? (
+          <>
+            <RootStack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+            <RootStack.Screen name="Register" component={Register} options={{ headerShown: false }} />
+          </>
+        ) : (
+          <>
+            <RootStack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
+            <RootStack.Screen name="OrderDetailModal" component={OrderDetail} options={{ title: 'Order Detail' }} />
+            <RootStack.Screen name="PdfViewer" component={PdfViewer} options={{ title: 'PDF Viewer' }} />
+          </>
+        )}
       </RootStack.Navigator>
     </NavigationContainer>
+  );
+}
+
+export default function AppNavigation() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

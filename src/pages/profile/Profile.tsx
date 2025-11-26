@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -11,6 +11,8 @@ import {
   Alert,
 } from 'react-native';
 import { useRealmStore } from '../../store/useRealmStore';
+import { useAuthAPI } from '../../services/hooks';
+import { getUserData } from '../../services/authStorage';
 // import { companyDetail } from '../../store/realmSchemas';
 import { useNavigation } from '@react-navigation/native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
@@ -34,8 +36,10 @@ const ListRow: React.FC<{
 export default function Profile() {
   const [termsVisible, setTermsVisible] = useState(false);
   const [aboutVisible, setAboutVisible] = useState(false);
+  const [userProfile, setUserProfile] = useState<any | null>(null);
   const { company } = useRealmStore();
   const navigation = useNavigation<any>();
+  const { getProfile, logout } = useAuthAPI();
 
   const openEmail = () => {
     const to = 'ceo@kodikas.in';
@@ -55,6 +59,24 @@ export default function Profile() {
     Linking.openURL(url).catch(() => Alert.alert('Unable to open link'));
   };
 
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        // try to fetch latest profile from server
+        const user = await getProfile();
+        if (mounted) setUserProfile(user);
+      } catch {
+        // fallback to locally stored user
+        const local = await getUserData();
+        if (mounted) setUserProfile(local);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [getProfile]);
+
   
 
   return (
@@ -64,6 +86,7 @@ export default function Profile() {
           <View>
             <Text style={styles.userSmall}>Company details</Text>
             <Text style={styles.userEmail}>{company?.companyName}</Text>
+            {userProfile?.email ? <Text style={styles.userEmailSub}>{userProfile.email}</Text> : null}
           </View>
           <TouchableOpacity
             onPress={() => navigation.navigate('EditProfile')}
@@ -99,6 +122,20 @@ export default function Profile() {
           subtitle="Share feedback"
           onPress={handleRate}
         />
+
+        <TouchableOpacity
+          style={styles.logoutBtn}
+          onPress={async () => {
+            try {
+              await logout();
+            } catch (e) {
+              console.warn('Logout error', e);
+            }
+            navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+          }}
+        >
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       <Modal
@@ -207,4 +244,5 @@ const styles = StyleSheet.create({
   userCardRow: { flexDirection: 'row', alignItems: 'center' },
   editBtn: {alignSelf:'flex-end',marginLeft:12},
   editIcon: { fontSize: 18, color: '#6e4337' },
+  userEmailSub: { color: '#7a6258', marginTop: 4 },
 });
