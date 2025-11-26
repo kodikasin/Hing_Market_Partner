@@ -138,7 +138,7 @@ const Menu = ({ order, navigation }: IMenu) => {
     // close menu immediately when an action is chosen
     setIsMenuOpen(false);
     // navigate to AddEditOrder with order id
-    navigation.navigate('AddEditOrder', { orderId: order.id });
+    navigation.navigate('AddEditOrder', { orderId: order?._id || '' });
   }
 
   function onDelete() {

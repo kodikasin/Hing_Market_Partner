@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { useRealmStore } from '../../store/useRealmStore';
-import { companyDetail } from '../../store/realmSchemas';
+// import { companyDetail } from '../../store/realmSchemas';
 import { useNavigation } from '@react-navigation/native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 
@@ -63,7 +63,7 @@ export default function Profile() {
         <View style={[styles.userCard, styles.userCardRow]}>
           <View>
             <Text style={styles.userSmall}>Company details</Text>
-            <Text style={styles.userEmail}>{company.companyName}</Text>
+            <Text style={styles.userEmail}>{company?.companyName}</Text>
           </View>
           <TouchableOpacity
             onPress={() => navigation.navigate('EditProfile')}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView, SafeAreaView } from 'react-native';
 import { useRealmStore } from '../../store/useRealmStore';
-import { companyDetail } from '../../store/realmSchemas';
+// import { companyDetail } from '../../store/realmSchemas';
 import { useNavigation } from '@react-navigation/native';
 
 export default function EditProfile() {
@@ -19,7 +19,7 @@ export default function EditProfile() {
       setCompanyName(company.companyName || '');
       setEmail(company.email || '');
       setMobileNo(company.mobileNo || '');
-      setAddress(company.address || '');
+      setAddress(company?.address || '');
       setGstNo(company.gstNo || '');
     }
   }, [company]);

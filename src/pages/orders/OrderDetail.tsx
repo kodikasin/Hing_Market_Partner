@@ -30,7 +30,7 @@ export default function OrderDetail() {
   }
 
   function toggle(key: keyof Order['status']) {
-    toggleOrderStatus(order?._id, key);
+    toggleOrderStatus(order?._id || '', key);
   }
 
   return (
