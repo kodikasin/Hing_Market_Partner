@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import { OrderItem } from '../store/orderSlice';
+import { OrderItem } from '../store/realmSchemas';
 
 export const itemsTotalQuantity = (items: OrderItem[]) => {
   let quantity = 0;

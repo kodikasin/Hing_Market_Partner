@@ -8,20 +8,19 @@ import {
   Alert,
 } from 'react-native';
 
-import { useSelector, useDispatch } from 'react-redux';
+import { useRealmStore } from '../../store/useRealmStore';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { selectOrders, toggleStatus, Order } from '../../store/orderSlice';
+import { Order } from '../../store/realmSchemas';
 
 import Menu from './Menu';
 
 export default function OrderDetail() {
   const route: any = useRoute();
   const { orderId } = route.params || {};
-  const orders = useSelector(selectOrders);
-  const dispatch = useDispatch();
+  const { orders, toggleOrderStatus } = useRealmStore();
   const navigation: any = useNavigation();
 
-  const order = orders.find((o: Order) => o.id === orderId);
+  const order = orders.find((o: Order) => o._id === orderId);
   if (!order) {
     return (
       <View style={styles.emptyContainer}>
@@ -31,7 +30,7 @@ export default function OrderDetail() {
   }
 
   function toggle(key: keyof Order['status']) {
-    dispatch(toggleStatus({ id: order?.id, statusKey: key } as any));
+    toggleOrderStatus(order?._id, key);
   }
 
   return (

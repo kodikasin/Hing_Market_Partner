@@ -10,7 +10,7 @@
 // Discount: 10
 // Notes: Urgent
 
-import { OrderItem } from '../store/orderSlice';
+import { OrderItem } from '../store/realmSchemas';
 
 export function parseWhatsappOrder(text: string) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);

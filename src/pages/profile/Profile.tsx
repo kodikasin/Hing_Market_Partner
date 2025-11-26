@@ -10,8 +10,8 @@ import {
   Linking,
   Alert,
 } from 'react-native';
-import { useSelector } from 'react-redux';
-import { companyDetail, selectCompany } from '../../store/companySlice';
+import { useRealmStore } from '../../store/useRealmStore';
+import { companyDetail } from '../../store/realmSchemas';
 import { useNavigation } from '@react-navigation/native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 
@@ -34,7 +34,7 @@ const ListRow: React.FC<{
 export default function Profile() {
   const [termsVisible, setTermsVisible] = useState(false);
   const [aboutVisible, setAboutVisible] = useState(false);
-  const company: companyDetail = useSelector(selectCompany);
+  const { company } = useRealmStore();
   const navigation = useNavigation<any>();
 
   const openEmail = () => {

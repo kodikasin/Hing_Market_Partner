@@ -1,7 +1,6 @@
-import { address } from "../../store/companySlice";
+import { address } from '../../store/realmSchemas';
 
 export type IData = {
-
   companyName?: string;
   companyAddress?: address;
   companyPhone?: string;
@@ -23,10 +22,7 @@ export type IData = {
   terms?: string;
   companyShort?: string;
   signatureImage?: string;
-}
-
-
-
+};
 
 export const generateDeliveryChallanHtml = ({
   companyName = '',
@@ -39,18 +35,30 @@ export const generateDeliveryChallanHtml = ({
   challanNo = '',
   challanDate = '',
   placeOfSupply = '',
-  items = [],             
+  items = [],
   totalQuantity = '',
   taxTotal = '',
   totalAmount = '',
-  taxSummary = [],     
+  taxSummary = [],
   taxableTotal = '',
   subTotal = '',
   amountInWords = '',
   terms = '',
   companyShort = '',
-  signatureImage = '',    // data URL or remote URL
+  signatureImage = '', // data URL or remote URL
 }: IData) => {
+  // Format address object to string
+  const addressStr =
+    typeof companyAddress === 'object' && companyAddress
+      ? `${(companyAddress as any).street || ''}, ${
+          (companyAddress as any).city || ''
+        }, ${(companyAddress as any).state || ''}, ${
+          (companyAddress as any).pincode || ''
+        }`
+          .replace(/,\s*$/, '')
+          .replace(/,\s*,/g, ',')
+      : (companyAddress as string);
+
   const itemsRowsHtml = items
     .map((item, index) => {
       return `
@@ -73,9 +81,11 @@ export const generateDeliveryChallanHtml = ({
       return `
         <tr>
           <td>${row.hsn}</td>
-          <td class="right">${row.taxableAmount?.toFixed?.(2) ?? row.taxableAmount}</td>
+          <td class="right">
+          ${row.taxableAmount?.toFixed?.(2) ?? row.taxableAmount}</td>
           <td class="center">${row.igstRate}</td>
-          <td class="right">${row.igstAmount?.toFixed?.(2) ?? row.igstAmount}</td>
+          <td class="right">
+          ${row.igstAmount?.toFixed?.(2) ?? row.igstAmount}</td>
           <td class="right">${row.totalTax?.toFixed?.(2) ?? row.totalTax}</td>
         </tr>
       `;
@@ -119,7 +129,7 @@ export const generateDeliveryChallanHtml = ({
         <tr>
           <td style="border:none; vertical-align:top;">
             <div class="companyName">${companyName}</div>
-            <div class="small">${companyAddress}</div>
+            <div class="small">${addressStr}</div>
             <div class="small">Phone: ${companyPhone}</div>
             <div class="small">State: ${companyState}</div>
           </td>
@@ -253,7 +263,11 @@ export const generateDeliveryChallanHtml = ({
             </td>
             <td style="vertical-align:top;padding:8px;text-align:center">
               &nbsp;<br/>
-              ${signatureImage ? `<img src="${signatureImage}" style="max-width:120px;max-height:60px" alt="signature"/>` : ''}
+              ${
+                signatureImage
+                  ? `<img src="${signatureImage}" style="max-width:120px;max-height:60px" alt="signature"/>`
+                  : ''
+              }
               <br/>Authorized Signatory
             </td>
           </tr>

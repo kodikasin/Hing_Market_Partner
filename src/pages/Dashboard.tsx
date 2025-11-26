@@ -6,16 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { useSelector } from 'react-redux';
-import { selectOrders, Order } from '../store/orderSlice';
-import { selectCompany } from '../store/companySlice';
+import { useRealmStore } from '../store/useRealmStore';
+import { Order } from '../store/realmSchemas';
 import { ListEmpty } from '../components/ListEmpty';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 const Dashboard = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const orders = useSelector(selectOrders);
-  const company = useSelector(selectCompany);
+  const { orders, company } = useRealmStore();
 
   const {
     totalOrders,
@@ -44,14 +42,14 @@ const Dashboard = () => {
   return (
     <FlatList
       data={recentOrders}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item._id}
       renderItem={({ item }) => (
         <OrderRow
           order={item}
           onPress={() =>
             navigation.navigate('Orders' as any, {
               screen: 'OrderDetail',
-              params: { orderId: item.id },
+              params: { orderId: item._id },
             })
           }
         />

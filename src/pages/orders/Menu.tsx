@@ -8,11 +8,11 @@ import {
 } from 'react-native';
 import React, { useRef, useState } from 'react';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { Order, removeOrder } from '../../store/orderSlice';
+import { useRealmStore } from '../../store/useRealmStore';
+import { Order } from '../../store/realmSchemas';
 import { generatePDF } from 'react-native-html-to-pdf';
 import { generateDeliveryChallanHtml, IData } from './htmlToPdf';
-import { companyDetail, selectCompany } from '../../store/companySlice';
+import { companyDetail } from '../../store/realmSchemas';
 import {
   itemsTotalAmount,
   // itemsTotalQuantity,
@@ -27,8 +27,8 @@ interface IMenu {
 
 const Menu = ({ order, navigation }: IMenu) => {
   console.log('order', JSON.stringify(order));
-  const dispatch = useDispatch();
-  const companyData: companyDetail = useSelector(selectCompany);
+  const { removeOrder, company } = useRealmStore();
+  const companyData: companyDetail | null = company;
   console.log('companyData', JSON.stringify(companyData));
   const viewHeight = useRef(new Animated.Value(0)).current;
 
@@ -61,11 +61,11 @@ const Menu = ({ order, navigation }: IMenu) => {
 
   const createPdfFile = async () => {
     let data: IData = {
-      companyName: companyData.companyName,
-      companyAddress: companyData.address,
-      companyPhone: companyData.mobileNo,
+      companyName: companyData?.companyName,
+      companyAddress: companyData?.address,
+      companyPhone: companyData?.mobileNo,
       companyState: '',
-      companyGSTIN: companyData.gstNo,
+      companyGSTIN: companyData?.gstNo,
       customerName: order.customerName,
       customerAddressLine: order.address,
       challanNo: '',
@@ -91,7 +91,7 @@ const Menu = ({ order, navigation }: IMenu) => {
       fileName: `Invoice_${(order.customerName || 'customer').replace(
         /\s+/g,
         '_',
-      )}_${order.id}`,
+      )}_${order._id}`,
       base64: false,
       width: 595,
       height: 842,
@@ -113,7 +113,7 @@ const Menu = ({ order, navigation }: IMenu) => {
       await shareFile({
         path,
         customerName: order.customerName,
-        orderId: order.id,
+        orderId: order._id,
       });
     } catch (err) {
       console.warn('PDF share error', err);
@@ -130,7 +130,7 @@ const Menu = ({ order, navigation }: IMenu) => {
       uri: file.filePath,
       page: 1,
       customerName: order.customerName,
-      orderId: order.id,
+      orderId: order._id,
     });
   };
 
@@ -153,7 +153,7 @@ const Menu = ({ order, navigation }: IMenu) => {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            dispatch(removeOrder(order.id));
+            removeOrder(order._id);
             navigation.goBack();
           },
         },

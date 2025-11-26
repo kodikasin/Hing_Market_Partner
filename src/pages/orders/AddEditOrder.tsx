@@ -9,27 +9,23 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {
-  addOrder,
-  updateOrder,
   Order,
   OrderItem,
-  selectOrders,
-} from '../../store/orderSlice';
+} from '../../store/realmSchemas';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { parseWhatsappOrder } from '../parseWhatsappOrder';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useRealmStore } from '../../store/useRealmStore';
 import Items from './Items';
 
 export default function AddEditOrder() {
-  const dispatch = useDispatch();
+  const { addOrder, updateOrder, orders } = useRealmStore();
   const navigation = useNavigation();
   const route = useRoute();
   const params: any = route.params;
-  const orders = useSelector(selectOrders);
 
   const editing = params?.orderId
-    ? orders.find((o: Order) => o.id === params.orderId)
+    ? orders.find((o: Order) => o._id === params.orderId)
     : null;
 
     console.log("editing",JSON.stringify(editing))
@@ -66,7 +62,7 @@ export default function AddEditOrder() {
 
   function onSave() {
     if (!customerName.trim()) return Alert.alert('Please enter customer name');
-    const payload: Omit<Order, 'id' | 'createdAt'> = {
+    const payload: Omit<Order, '_id' | 'createdAt'> = {
       customerName: customerName.trim(),
       phone,
       address,
@@ -86,9 +82,9 @@ export default function AddEditOrder() {
     };
 
     if (editing) {
-      dispatch(updateOrder({ ...(editing as Order), ...payload } as any));
+      updateOrder({ ...editing, ...payload } as any);
     } else {
-      dispatch(addOrder(payload as any));
+      addOrder(payload as any);
     }
     navigation.goBack();
   }

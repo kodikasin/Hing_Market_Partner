@@ -6,8 +6,8 @@ import {
   StyleSheet,
 } from 'react-native';
 import React, { useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import { Order, selectOrders } from '../../store/orderSlice';
+import { useRealmStore } from '../../store/useRealmStore';
+import { Order } from '../../store/realmSchemas';
 import { ListEmpty } from '../../components/ListEmpty';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 
@@ -21,7 +21,7 @@ type RootStackParamList = {
 
 const OrderList = ({ filter }: IOrderListProps) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const orders = useSelector(selectOrders);
+  const { orders } = useRealmStore();
 
   const filtered = useMemo(() => {
     switch (filter) {
@@ -39,12 +39,12 @@ const OrderList = ({ filter }: IOrderListProps) => {
   return (
     <FlatList
       data={filtered}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item._id}
       renderItem={({ item }) => (
         <OrderRow
           order={item}
           onPress={() =>
-            navigation.navigate('OrderDetail' as any, { orderId: item.id })
+            navigation.navigate('OrderDetail' as any, { orderId: item._id })
           }
         />
       )}

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView, SafeAreaView } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { companyDetail, selectCompany, updateCompany } from '../../store/companySlice';
+import { useRealmStore } from '../../store/useRealmStore';
+import { companyDetail } from '../../store/realmSchemas';
 import { useNavigation } from '@react-navigation/native';
 
 export default function EditProfile() {
-  const dispatch = useDispatch();
+  const { company, updateCompany } = useRealmStore();
   const navigation = useNavigation<any>();
-  const company: companyDetail = useSelector(selectCompany);
 
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
@@ -29,15 +28,13 @@ export default function EditProfile() {
     if (!companyName.trim()) return Alert.alert('Please enter company name');
     if (!mobileNo.trim()) return Alert.alert('Please enter mobile number');
 
-    dispatch(
-      updateCompany({
-        companyName: companyName.trim(),
-        email: email.trim(),
-        mobileNo: mobileNo.trim(),
-        address: address.trim(),
-        gstNo: gstNo.trim(),
-      }) as any
-    );
+    updateCompany({
+      companyName: companyName.trim(),
+      email: email.trim(),
+      mobileNo: mobileNo.trim(),
+      address: address.trim(),
+      gstNo: gstNo.trim(),
+    });
 
     Alert.alert('Saved', 'Company details updated');
     navigation.goBack();

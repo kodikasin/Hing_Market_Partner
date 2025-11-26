@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { OrderItem } from '../../store/orderSlice';
+import { OrderItem } from '../../store/realmSchemas';
 
 type ItemsProps = {
   items: OrderItem[];
