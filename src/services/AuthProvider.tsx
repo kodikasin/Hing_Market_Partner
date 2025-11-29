@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   getAuthToken,
   getUserData,
-  setAuthToken as storeAuthToken,
   setUserData as storeUserData,
   clearAuthData,
 } from './authStorage';
@@ -11,11 +10,7 @@ type AuthContextType = {
   loading: boolean;
   isAuthenticated: boolean;
   user: any | null;
-  signIn: (
-    accessToken: string,
-    refreshToken: string,
-    user?: any,
-  ) => Promise<void>;
+  signIn: () => Promise<void>;
   signOut: () => Promise<void>;
   setUser: (user: any) => Promise<void>;
 };
@@ -54,14 +49,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const signIn = async (
-    accessToken: string,
-    refreshToken: string,
-    userObj?: any,
   ) => {
-    await storeAuthToken(accessToken, refreshToken);
-    if (userObj) await storeUserData(userObj);
     setIsAuthenticated(true);
-    if (userObj) setUserState(userObj);
   };
 
   const signOut = async () => {

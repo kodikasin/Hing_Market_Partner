@@ -30,14 +30,12 @@ export const useAuthAPI = () => {
       setError(null);
       try {
         const response = await authAPI.login({ email, password });
-        console.log("response",response)
         const data = response.data;
-        
-        const accessToken = data?.accessToken || data?.user?.accessToken;
-        const refreshToken = data?.refreshToken || data?.user?.refreshToken;
-        const user = data?.user || data;
 
-        if (!accessToken) {
+        const accessToken = data?.user?.accessToken;
+        const refreshToken = data?.user?.refreshToken;
+
+        if (!accessToken && !refreshToken) {
           setError('Login failed: No access token received');
           setLoading(false);
           throw new Error('No access token in response');
@@ -45,10 +43,9 @@ export const useAuthAPI = () => {
 
         // Store auth tokens and user data
         await setAuthToken(accessToken, refreshToken);
-        await setUserData(user);
 
         // update auth context
-        await signIn(accessToken, refreshToken, user);
+        await signIn();
 
         setLoading(false);
         return response.data;
@@ -68,7 +65,7 @@ export const useAuthAPI = () => {
         throw err;
       }
     },
-    [setLoading, setError, handleError, signIn]
+    [setLoading, setError, handleError, signIn],
   );
 
   const logout = useCallback(async () => {
@@ -100,7 +97,7 @@ export const useAuthAPI = () => {
         throw err;
       }
     },
-    [setLoading, setError, handleError]
+    [setLoading, setError, handleError],
   );
 
   return { login, logout, register, getProfile, loading, error };

@@ -28,23 +28,27 @@ export const authAPI = {
  * Orders API calls
  */
 export const ordersAPI = {
+  // Backend uses /order routes
   getAllOrders: (params?: any): Promise<AxiosResponse<any>> =>
-    apiClient.get('/orders', { params }),
+    apiClient.get('/order/all', { params }),
+
+  getUserOrders: (params?: any): Promise<AxiosResponse<any>> =>
+    apiClient.get('/order/user', { params }),
 
   getOrderById: (id: string): Promise<AxiosResponse<any>> =>
-    apiClient.get(`/orders/${id}`),
+    apiClient.get(`/order/${id}`),
 
   createOrder: (data: any): Promise<AxiosResponse<any>> =>
-    apiClient.post('/orders', data),
+    apiClient.post('/order/create', data),
 
   updateOrder: (id: string, data: any): Promise<AxiosResponse<any>> =>
-    apiClient.put(`/orders/${id}`, data),
+    apiClient.patch(`/order/update/${id}`, data),
 
   deleteOrder: (id: string): Promise<AxiosResponse<any>> =>
-    apiClient.delete(`/orders/${id}`),
+    apiClient.delete(`/order/delete/${id}`),
 
   updateOrderStatus: (id: string, status: any): Promise<AxiosResponse<any>> =>
-    apiClient.patch(`/orders/${id}/status`, status),
+    apiClient.patch(`/order/update/${id}`, status),
 };
 
 /**

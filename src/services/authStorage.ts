@@ -23,7 +23,8 @@ export const setAuthToken = async (token: string, refreshToken?: string): Promis
  */
 export const getAuthToken = async (): Promise<string | null> => {
   try {
-    return await AsyncStorage.getItem(TOKEN_KEY);
+    const a = await AsyncStorage.getItem(TOKEN_KEY);
+    return a
   } catch (error) {
     console.error('Error retrieving auth token:', error);
     return null;
@@ -42,9 +43,8 @@ export const getRefreshToken = async (): Promise<string | null> => {
   }
 };
 
-/**
- * Store user data
- */
+
+// In this it has object of access token and refresh token
 export const setUserData = async (user: any): Promise<void> => {
   try {
     await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
