@@ -46,9 +46,20 @@ apiClient.interceptors.response.use(
   },
   async (error: AxiosError<any>) => {
     const originalRequest = error.config as any;
-    if (error.response?.status === 401) {
-      // Token expired or unauthorized
-      console.warn('⚠️ Unauthorized - Token may have expired');
+    
+    // Handle both 401 and 403 status codes for expired/invalid tokens
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      // Check if this is an "Invalid or expired token" error
+      const isExpiredTokenError = error.response?.data?.message?.includes('Invalid or expired token') 
+        || error.response?.status === 401;
+      
+      if (!isExpiredTokenError && error.response?.status === 403) {
+        // If 403 but not token error, reject immediately
+        console.warn('⛔ Forbidden - Access denied');
+        return Promise.reject(error);
+      }
+
+      console.warn('⚠️ Token expired or invalid - Attempting to refresh');
 
       // Avoid infinite loop
       if (originalRequest._retry) {
@@ -88,11 +99,6 @@ apiClient.interceptors.response.use(
         await clearAuthData();
         return Promise.reject(e);
       }
-    }
-
-    if (error.response?.status === 403) {
-      console.warn('⛔ Forbidden - Access denied');
-      return Promise.reject(error);
     }
 
     if (error.response?.status === 404) {

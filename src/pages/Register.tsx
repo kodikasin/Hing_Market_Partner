@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import {
-  SafeAreaView,
   View,
   Text,
   StyleSheet,
@@ -13,6 +12,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useAuthAPI } from '../services/hooks';
+import { SafeAreaView } from 'react-native-safe-area-context';
 // navigation props handled generically by navigator
 
 export default function Register(props: any) {
