@@ -61,7 +61,12 @@ export default function Profile() {
 
   useEffect(() => {
     let mounted = true;
+    let hasRun = false;
+
     (async () => {
+      if (hasRun) return;
+      hasRun = true;
+      
       try {
         // try to fetch latest profile from server
         const user = await getProfile();
@@ -72,10 +77,11 @@ export default function Profile() {
         if (mounted) setUserProfile(local);
       }
     })();
+
     return () => {
       mounted = false;
     };
-  }, [getProfile]);
+  }, []);
 
   
 
