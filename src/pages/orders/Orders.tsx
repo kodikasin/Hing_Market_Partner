@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
 } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import OrderList from './OrderList';
+import { useRealmStore } from '../../store/useRealmStore';
+import { ordersAPI } from '../../services/api';
 
 type RootStackParamList = {
   OrderDetail: { orderId: string };
@@ -18,6 +20,24 @@ export default function Orders() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   
   const [filter, setFilter] = useState<(typeof filters)[number]>('All');
+  const { setOrders } = useRealmStore();
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        const res = await ordersAPI.getUserOrders({ page: 1, limit: 200 });
+        const serverOrders = res?.data?.data || [];
+        if (mounted) setOrders(Array.isArray(serverOrders) ? serverOrders : []);
+      } catch (e) {
+        console.warn('Failed to fetch user orders', e);
+      }
+    }
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [setOrders]);
 
   return (
     <View style={styles.container}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,27 +16,60 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { parseWhatsappOrder } from '../parseWhatsappOrder';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useRealmStore } from '../../store/useRealmStore';
+import { ordersAPI } from '../../services/api';
 import Items from './Items';
 
 export default function AddEditOrder() {
-  const { addOrder, updateOrder, orders } = useRealmStore();
+  const { orders, setOrders } = useRealmStore();
   const navigation = useNavigation();
   const route = useRoute();
   const params: any = route.params;
+  const [editing, setEditing] = useState<Order | null>(() =>
+    params?.orderId ? (orders.find((o: Order) => o._id === params.orderId) || null) : null
+  );
 
-  const editing = params?.orderId
-    ? orders.find((o: Order) => o._id === params.orderId)
-    : null;
+  const [customerName, setCustomerName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [notes, setNotes] = useState('');
+  const [items, setItems] = useState<OrderItem[]>([]);
+  const [taxes, setTaxes] = useState('0');
+  const [discount, setDiscount] = useState('0');
 
-    console.log("editing",JSON.stringify(editing))
+  useEffect(() => {
+    let mounted = true;
+    async function loadOrder() {
+      if (params?.orderId && !editing) {
+        try {
+          const res = await ordersAPI.getOrderById(params.orderId);
+          const serverOrder = res?.data?.order || res?.data;
+          if (serverOrder && mounted) {
+            setEditing(serverOrder as any);
+          }
+        } catch (e) {
+          console.warn('Failed to fetch order by id', e);
+        }
+      }
+    }
+    loadOrder();
+    return () => {
+      mounted = false;
+    };
+  }, [params?.orderId, editing]);
 
-  const [customerName, setCustomerName] = useState(editing?.customerName ?? '');
-  const [phone, setPhone] = useState(editing?.phone ?? '');
-  const [address, setAddress] = useState(editing?.address ?? '');
-  const [notes, setNotes] = useState(editing?.notes ?? '');
-  const [items, setItems] = useState<OrderItem[]>(editing?.items ?? []);
-  const [taxes, setTaxes] = useState(String(editing?.taxes ?? 0));
-  const [discount, setDiscount] = useState(String(editing?.discount ?? 0));
+  
+
+  useEffect(() => {
+    if (editing) {
+      setCustomerName(editing.customerName ?? '');
+      setPhone(editing.phone ?? '');
+      setAddress(editing.address ?? '');
+      setNotes(editing.notes ?? '');
+      setItems(editing.items ?? []);
+      setTaxes(String(editing.taxes ?? 0));
+      setDiscount(String(editing.discount ?? 0));
+    }
+  }, [editing]);
 
   function computeTotals() {
     const subtotal = items.reduce((s, it) => s + (it.total || 0), 0);
@@ -62,13 +95,19 @@ export default function AddEditOrder() {
 
   function onSave() {
     if (!customerName.trim()) return Alert.alert('Please enter customer name');
-    const payload: Omit<Order, '_id' | 'createdAt'> = {
+    const payload: any = {
       customerName: customerName.trim(),
       phone,
       address,
-      // compute totals and remove any items with zero total
-      items: items.filter(i => (i.total || 0) > 0),
-      // taxes: parseFloat(taxes || '0'),
+      items: items.filter(i => (i.total || 0) > 0).map(i => ({
+        id: i.id || '',
+        name: i.name,
+        quantity: i.quantity,
+        unit: i.unit,
+        rate: i.rate,
+        total: i.total,
+      })),
+      taxes: parseFloat(taxes || '0'),
       discount: parseFloat(discount || '0'),
       totalAmount: computeTotals().finalTotal,
       notes,
@@ -81,12 +120,23 @@ export default function AddEditOrder() {
       timeline: editing?.timeline ?? [],
     };
 
-    if (editing) {
-      updateOrder({ ...editing, ...payload } as any);
-    } else {
-      addOrder(payload as any);
-    }
-    navigation.goBack();
+    (async () => {
+      try {
+        if (editing && (editing as any)._id) {
+          await ordersAPI.updateOrder((editing as any)._id, payload);
+        } else {
+          await ordersAPI.createOrder(payload);
+        }
+        // refresh from server and sync to realm
+        const res = await ordersAPI.getUserOrders({ page: 1, limit: 200 });
+        const serverOrders = res?.data?.data || [];
+        setOrders(Array.isArray(serverOrders) ? serverOrders : []);
+        navigation.goBack();
+      } catch (e) {
+        console.warn('Failed to save order', e);
+        Alert.alert('Failed to save order');
+      }
+    })();
   }
 
   // precompute totals for rendering

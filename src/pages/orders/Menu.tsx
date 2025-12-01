@@ -19,6 +19,7 @@ import {
   numberToWords,
   shareFile,
 } from '../../utils/orderFun';
+import { ordersAPI } from '../../services/api';
 
 interface IMenu {
   order: Order;
@@ -152,7 +153,8 @@ const Menu = ({ order, navigation }: IMenu) => {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => {
+          onPress: async() => {
+            await ordersAPI.deleteOrder(order._id)
             removeOrder(order._id);
             navigation.goBack();
           },

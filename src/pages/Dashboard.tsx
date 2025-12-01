@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,36 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useRealmStore } from '../store/useRealmStore';
+import { ordersAPI } from '../services/api';
 import { Order } from '../store/realmSchemas';
 import { ListEmpty } from '../components/ListEmpty';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 const Dashboard = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { orders, company } = useRealmStore();
+  const { orders, company, setOrders } = useRealmStore();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        setLoading(true);
+        const res = await ordersAPI.getUserOrders({ page: 1, limit: 100 });
+        // backend returns { page, limit, total, totalPages, data }
+        const serverOrders = res?.data?.data || [];
+        if (mounted) setOrders(Array.isArray(serverOrders) ? serverOrders : []);
+      } catch (e) {
+        console.warn('Failed to fetch user orders', e);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [setOrders]);
 
   const {
     totalOrders,
