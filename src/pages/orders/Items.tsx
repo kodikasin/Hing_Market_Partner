@@ -39,7 +39,6 @@ const Items = ({ items, setItems, styles }: ItemsProps) => {
   }
 
   function updateItem(idx: number, key: keyof OrderItem, value: any) {
-    console.log(idx, key, value);
     setItems(prev => {
       return prev.map((item, i) => {
         if (i !== idx) return item;

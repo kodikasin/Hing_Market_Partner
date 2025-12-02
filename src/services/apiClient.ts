@@ -25,7 +25,6 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
 
-      console.log(`🚀 ${config.method?.toUpperCase()} ${config.url}`);
       return config;
     } catch (error) {
       console.error('Error in request interceptor:', error);
@@ -41,7 +40,6 @@ apiClient.interceptors.request.use(
 // Response interceptor
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log(`✅ Response from ${response.config.url}:`, response.status);
     return response;
   },
   async (error: AxiosError<any>) => {

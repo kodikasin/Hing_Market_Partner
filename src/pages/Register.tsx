@@ -65,7 +65,7 @@ export default function Register(props: any) {
       navigation.navigate('Login');
     } catch (err: any) {
       // Error is already handled by useAuthAPI hook
-      console.log('Registration error:', err);
+      console.warn('Registration error:', err);
     }
   }, [name, email, password, confirmPassword, register, navigation]);
 

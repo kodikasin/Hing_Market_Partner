@@ -43,7 +43,7 @@ export default function Login(props: any) {
       });
     } catch (err) {
       // Error is already handled by useAuthAPI hook
-      console.log('Login error:', err);
+      console.warn('Login error:', err);
     }
   }, [email, password, login, navigation]);
 

@@ -27,10 +27,8 @@ interface IMenu {
 }
 
 const Menu = ({ order, navigation }: IMenu) => {
-  console.log('order', JSON.stringify(order));
   const { removeOrder, company } = useRealmStore();
   const companyData: companyDetail | null = company;
-  console.log('companyData', JSON.stringify(companyData));
   const viewHeight = useRef(new Animated.Value(0)).current;
 
   const heightExpand = () => {
@@ -108,7 +106,6 @@ const Menu = ({ order, navigation }: IMenu) => {
       const file = await createPdfFile();
 
       const path = file.filePath; // e.g. /data/user/0/.../cache/Invoice_...pdf
-      console.log('pdf path:', path);
 
       // sanity check: file exists
       await shareFile({
@@ -125,7 +122,6 @@ const Menu = ({ order, navigation }: IMenu) => {
   const viewPdfHandler = async () => {
     setIsMenuOpen(false);
     const file = await createPdfFile();
-    console.log('file', file);
 
     navigation.navigate('PdfViewer', {
       uri: file.filePath,
